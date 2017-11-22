@@ -1,8 +1,8 @@
 #Use the values output by the JuniorAdminIssue.ps1 script
 
-terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_eip.nat[2]
-terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_nat_gateway.this[2]
+terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_eip.nat[2] 
+terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_nat_gateway.this[2] 
 terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_route.private_nat_gateway[2]
-terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_route_table.private[2] rtb-3cf8b745
-terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_subnet.private[2] subnet-ab868df0
-terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_subnet.public[2] subnet-3f848f64
+terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_route_table.private[2] 
+terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_subnet.private[2] 
+terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_subnet.public[2] 
