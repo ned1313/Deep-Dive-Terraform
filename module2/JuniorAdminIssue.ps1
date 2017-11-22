@@ -1,8 +1,20 @@
+param(
+    $TerraformVarsFile = "..\..\terraform.tfvars"
+)
+#Get the AWS keys
+$content = Get-Content $TerraformVarsFile
+$values = @{}
+foreach($line in $content){ 
+    if($line){
+        $values.Add($line.Split(' ')[0],$line.Split(' ')[2])
+    }
+}
+
 #Install the AWS PowerShell if you don't already have it
 Install-Module AWSPowerShell -Force
 
 #Set the AWS Credentials
-Set-AWSCredential -SecretKey "YourSecretKey" -AccessKey "YourAccessKey"
+Set-AWSCredential -SecretKey $values.aws_secret_key -AccessKey $values.aws_access_key
 
 #Set the default region as applicable
 $region = "us-west-2"
