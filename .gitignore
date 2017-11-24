@@ -3,6 +3,10 @@ module*/.terraform/
 terraform.tfvars
 module*/terraform.tfstate*
 module*/terraform.tfplan
-
+module*/*/terraform.tfstate*
+module*/*/terraform.tfplan
+**/.terraform/*
+.terraform/
+.terraform
 
 
