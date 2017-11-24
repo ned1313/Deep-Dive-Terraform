@@ -1,8 +1,7 @@
-module*/.terraform/
+module*/.terraform/*
 terraform.tfvars
 module*/terraform.tfstate*
 module*/terraform.tfplan
-.terraform/*
 
 
 
