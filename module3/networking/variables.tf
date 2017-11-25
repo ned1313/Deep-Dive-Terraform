@@ -9,3 +9,7 @@ variable "subnet_count" {
   default = 2
 }
 
+variable "network_bucket_name" {
+  default = "ddt-networking"
+}
+
