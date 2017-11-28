@@ -3,5 +3,5 @@
 **/terraform.tfstate.backup
 **/terraform.tfplan
 **/.terraform/**
-
+**/crash.log
 
