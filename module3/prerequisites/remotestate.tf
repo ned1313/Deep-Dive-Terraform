@@ -47,7 +47,8 @@ resource "aws_dynamodb_table" "terraform_statelock" {
 resource "aws_s3_bucket" "ddtnet" {
   bucket = "${var.aws_networking_bucket}"
   acl    = "private"
-
+  force_destroy = true
+  
   versioning {
     enabled = true
   }
@@ -85,6 +86,7 @@ EOF
 resource "aws_s3_bucket" "ddtapp" {
   bucket = "${var.aws_application_bucket}"
   acl    = "private"
+  force_destroy = true
 
   versioning {
     enabled = true
