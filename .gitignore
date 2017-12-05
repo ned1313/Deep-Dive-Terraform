@@ -4,4 +4,4 @@
 **/terraform.tfplan
 **/.terraform/**
 **/crash.log
-
+**/*.tfplan

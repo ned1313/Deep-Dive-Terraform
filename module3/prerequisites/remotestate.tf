@@ -10,6 +10,9 @@ variable "aws_networking_bucket" {
 variable "aws_application_bucket" {
     default = "ddt-application"
 }
+variable "aws_dynamodb_table" {
+    default = "ddt-tfstatelock"
+}
 variable "user_home_path" {}
 
 ##################################################################################
@@ -29,11 +32,23 @@ data "aws_iam_group" "ec2admin" {
 ##################################################################################
 # RESOURCES
 ##################################################################################
+resource "aws_dynamodb_table" "terraform_statelock" {
+  name           = "${var.aws_dynamodb_table}"
+  read_capacity  = 20
+  write_capacity = 20
+  hash_key       = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
 
 resource "aws_s3_bucket" "ddtnet" {
   bucket = "${var.aws_networking_bucket}"
   acl    = "private"
-
+  force_destroy = true
+  
   versioning {
     enabled = true
   }
@@ -71,6 +86,7 @@ EOF
 resource "aws_s3_bucket" "ddtapp" {
   bucket = "${var.aws_application_bucket}"
   acl    = "private"
+  force_destroy = true
 
   versioning {
     enabled = true
@@ -150,6 +166,13 @@ resource "aws_iam_user_policy" "marymoe_rw" {
             "Resource": [
                 "arn:aws:s3:::${var.aws_networking_bucket}",
                 "arn:aws:s3:::${var.aws_networking_bucket}/*"
+            ]
+        },
+                {
+            "Effect": "Allow",
+            "Action": ["dynamodb:*"],
+            "Resource": [
+                "${aws_dynamodb_table.terraform_statelock.arn}"
             ]
         }
    ]

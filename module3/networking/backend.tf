@@ -1,11 +1,11 @@
 ##################################################################################
-# VARIABLES
+# BACKENDS
 ##################################################################################
-
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
-
-variable "subnet_count" {
-  default = 2
+terraform {
+  backend "s3" {
+    key = "networking.state"
+    region = "us-west-2"
+    profile = "marymoe"
+    dynamodb_table = "ddt-tfstatelock"
+  }
 }
-
