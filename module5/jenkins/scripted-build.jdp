@@ -1,0 +1,77 @@
+node {
+// Mark the code checkout 'Checkout'....
+   stage 'Checkout'
+ 
+   // // Get some code from a GitHub repository
+   git url: 'https://github.com/ned1313/Deep-Dive-Terraform.git'
+ 
+   // Get the Terraform tool.
+   def tfHome = tool name: 'terraform-0.11.1', type: 'org.jenkinsci.plugins.terraform.TerraformInstallation'
+   env.PATH = "${tfHome}:${env.PATH}"
+    dir('module2/') {
+           // Mark the code build 'plan'....
+           stage name: 'Plan', concurrency: 1
+           // Output Terraform version
+           sh "terraform --version"
+           //Remove the terraform state file so we always start from a clean state
+           if (fileExists(".terraform/terraform.tfstate")) {
+               sh "rm -rf .terraform/terraform.tfstate"
+           }
+           if (fileExists("status")) {
+               sh "rm status"
+           }
+           sh "terraform init -input=false"
+           sh "echo \$PWD"
+           sh "whoami"
+           withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'aws_secret_key_var', usernameVariable: 'aws_access_key_var')]) {
+            sh "terraform plan -var 'aws_access_key=${aws_access_key_var}' -var 'aws_secret_key=${aws_secret_key_var}' -out=plan.out;echo \$? > status"
+            def exitCode = readFile('status').trim()
+            def apply = false
+           if (exitCode == "1") {
+               sh "terraform destroy -force"
+               echo "Terraform Plan Exit Code: ${exitCode}"
+           }
+           if (exitCode == "0") {
+               echo "Terraform Plan Exit Code: ${exitCode}"
+               //stash name: "plan", includes: "plan.out"
+               try {
+                   input message: 'confirm apply', ok: 'Apply Config'
+                   apply = true
+               } catch (err) {
+                   apply = false
+                   sh "terraform destroy -force"
+                   currentBuild.result = 'UNSTABLE'
+               }
+           }
+           if (apply) {
+               stage name: 'Apply', concurrency: 1
+               //unstash 'plan'
+               if (fileExists("status.apply")) {
+                   sh "rm status.apply"
+               }
+               sh 'terraform apply plan.out;echo \$? > status.apply'
+               def applyExitCode = readFile('status.apply').trim()
+               def destroy = false
+               if (applyExitCode == "0") {
+                   echo "Terraform Apply Exit Code: ${applyExitCode}"
+                   try {
+                   input message: 'confirm destroy', ok: 'Destroy Config'
+                   destroy = true
+                    } catch (err) {
+                        apply = false
+                        sh "terraform destroy -force"
+                        currentBuild.result = 'UNSTABLE'
+                    }
+               } else {
+                   sh "terraform destroy -force"
+                   currentBuild.result = 'FAILURE'
+               }
+               if (destroy) {
+                   echo "Terraform Destory Invoked"
+                   sh "terraform destroy -var 'aws_access_key=${aws_access_key_var}' -var 'aws_secret_key=${aws_secret_key_var}' -force"
+               }
+           }
+           }
+    }
+   
+}

@@ -1,0 +1,42 @@
+node {
+// Mark the code checkout 'Checkout'....
+   stage 'Checkout'
+ 
+   // // Get some code from a GitHub repository
+   git url: 'https://github.com/ned1313/Deep-Dive-Terraform.git'
+ 
+   // Get the Terraform tool.
+   def tfHome = tool name: 'terraform-0.11.1', type: 'org.jenkinsci.plugins.terraform.TerraformInstallation'
+   env.PATH = "${tfHome}:${env.PATH}"
+    dir('module2/') {
+           // Mark the code build 'plan'....
+           stage name: 'Plan', concurrency: 1
+           // Output Terraform version
+           sh "terraform --version"
+           //Remove the terraform state file so we always start from a clean state
+           if (fileExists(".terraform/terraform.tfstate")) {
+               sh "rm -rf .terraform/terraform.tfstate"
+           }
+           if (fileExists("status")) {
+               sh "rm status"
+           }
+           sh "terraform init -input=false"
+           sh "echo \$PWD"
+           sh "whoami"
+           withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'aws_secret_key_var', usernameVariable: 'aws_access_key_var')]) {
+            sh "terraform plan -var 'aws_access_key=${aws_access_key_var}' -var 'aws_secret_key=${aws_secret_key_var}' -out=terraform.tfplan;echo \$? > status"
+            def exitCode = readFile('status').trim()
+            def apply = false
+           if (exitCode == "1") {
+               sh "terraform destroy -force"
+               echo "Terraform Plan Exit Code: ${exitCode}"
+           }
+           if (exitCode == "0") {
+               echo "Terraform Plan Exit Code: ${exitCode}"
+               //stash name: "plan", includes: "plan.out"
+               archiveArtifacts '*.tfplan'
+           }
+           }
+    }
+   
+}
