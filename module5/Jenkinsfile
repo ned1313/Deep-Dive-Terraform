@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    environment {
+        AWS_ACCESS_KEY = credentials('aws_access_key')
+        AWS_SECRET_KEY = credentials('aws_secret_key')
+    }
+    tools {
+        terraform 'terraform-0.11.1'
+    }
+    stages {
+        stage('Init'){
+            steps {
+                sh 'terraform --version'
+                sh "terraform init -input=false"
+                sh "echo \$PWD"
+                sh "whoami"
+            }
+        }
+        stage('Plan'){
+            steps {
+                sh "terraform plan -var 'aws_access_key=$AWS_ACCESS_KEY' -var 'aws_secret_key=$AWS_SECRET_KEY' -out=terraform.tfplan;echo \$? > status"
+            }
+        }
+        stage('Apply'){
+
+        }
+    }
+
+}
