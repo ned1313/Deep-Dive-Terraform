@@ -22,6 +22,7 @@ pipeline {
             steps {
                 dir('module5/'){
                     sh "terraform plan -var 'aws_access_key=$AWS_ACCESS_KEY' -var 'aws_secret_key=$AWS_SECRET_KEY' -out=terraform.tfplan;echo \$? > status"
+                    stash name: "terraform-plan", includes: "terraform.tfplan"
                 }
             }
         }
@@ -38,6 +39,7 @@ pipeline {
                }
                if(apply){
                    dir('module5'){
+                       unstash "terraform-plan"
                        sh 'terraform apply terraform.tfplan'
                    }
                }
