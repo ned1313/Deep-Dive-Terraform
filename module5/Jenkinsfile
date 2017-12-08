@@ -3,6 +3,8 @@ pipeline {
     environment {
         AWS_ACCESS_KEY = credentials('aws_access_key')
         AWS_SECRET_KEY = credentials('aws_secret_key')
+        TF_HOME = tool('org.jenkinsci.plugins.terraform.TerraformInstallation')
+        PATH = "$TF_HOME:$PATH"
     }
     tools {
         "org.jenkinsci.plugins.terraform.TerraformInstallation" "terraform-0.11.1"
