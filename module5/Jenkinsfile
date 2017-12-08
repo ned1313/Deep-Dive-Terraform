@@ -10,19 +10,38 @@ pipeline {
     stages {
         stage('Init'){
             steps {
-                sh 'terraform --version'
-                sh "terraform init -input=false"
-                sh "echo \$PWD"
-                sh "whoami"
+                dir('module5/'){
+                    sh 'terraform --version'
+                    sh "terraform init -input=false"
+                    sh "echo \$PWD"
+                    sh "whoami"
+                }
             }
         }
         stage('Plan'){
             steps {
-                sh "terraform plan -var 'aws_access_key=$AWS_ACCESS_KEY' -var 'aws_secret_key=$AWS_SECRET_KEY' -out=terraform.tfplan;echo \$? > status"
+                dir('module5/'){
+                    sh "terraform plan -var 'aws_access_key=$AWS_ACCESS_KEY' -var 'aws_secret_key=$AWS_SECRET_KEY' -out=terraform.tfplan;echo \$? > status"
+                }
             }
         }
         stage('Apply'){
-
+            steps {
+                def apply = false
+                try {
+                   input message: 'confirm apply', ok: 'Apply Config'
+                   apply = true
+               } catch (err) {
+                   apply = false
+                   sh "terraform destroy -force"
+                   currentBuild.result = 'UNSTABLE'
+               }
+               if(apply){
+                   dir('module5'){
+                       sh 'terraform apply terraform.tfplan'
+                   }
+               }
+            }
         }
     }
 
