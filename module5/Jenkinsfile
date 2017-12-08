@@ -37,7 +37,7 @@ pipeline {
                         apply = true
                     } catch (err) {
                         apply = false
-                        sh "terraform destroy -force"
+                        sh "terraform destroy -var 'aws_access_key=$AWS_ACCESS_KEY' -var 'aws_secret_key=$AWS_SECRET_KEY' -force"
                         currentBuild.result = 'UNSTABLE'
                     }
                     if(apply){
