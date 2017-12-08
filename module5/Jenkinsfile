@@ -5,7 +5,7 @@ pipeline {
         AWS_SECRET_KEY = credentials('aws_secret_key')
     }
     tools {
-        org.jenkinsci.plugins.terraform.TerraformInstallation
+        Terraform 'terraform-0.11.1'
     }
     stages {
         stage('Init'){
