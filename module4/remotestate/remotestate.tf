@@ -65,7 +65,7 @@ data "template_file" "mary_moe_policy" {
   }
 }
 
-data "template_file" "mary_moe_policy" {
+data "template_file" "sally_sue_policy" {
   template = "${file("templates/user_policy.tpl")}"
 
   vars {
