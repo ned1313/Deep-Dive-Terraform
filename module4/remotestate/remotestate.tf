@@ -4,15 +4,19 @@
 
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
+
 variable "aws_networking_bucket" {
-    default = "ddt-networking"
+  default = "ddt-networking"
 }
+
 variable "aws_application_bucket" {
-    default = "ddt-application"
+  default = "ddt-application"
 }
+
 variable "aws_dynamodb_table" {
-    default = "ddt-tfstatelock"
+  default = "ddt-tfstatelock"
 }
+
 variable "user_home_path" {}
 
 ##################################################################################
@@ -26,12 +30,50 @@ provider "aws" {
 }
 
 data "aws_iam_group" "ec2admin" {
-    group_name = "EC2Admin"
+  group_name = "EC2Admin"
 }
 
 ##################################################################################
 # RESOURCES
 ##################################################################################
+data "template_file" "application_bucket_policy" {
+  template = "${file("templates/bucket_policy.tpl")}"
+
+  vars {
+    read_only_user_arn   = "${aws_iam_user.marymoe.arn}"
+    full_access_user_arn = "${aws_iam_user.sallysue.arn}"
+    s3_bucket            = "${var.aws_application_bucket}"
+  }
+}
+
+data "template_file" "network_bucket_policy" {
+  template = "${file("templates/bucket_policy.tpl")}"
+
+  vars {
+    read_only_user_arn   = "${aws_iam_user.sallysue.arn}"
+    full_access_user_arn = "${aws_iam_user.marymoe.arn}"
+    s3_bucket            = "${var.aws_networking_bucket}"
+  }
+}
+
+data "template_file" "mary_moe_policy" {
+  template = "${file("templates/user_policy.tpl")}"
+
+  vars {
+    s3_bucket          = "${var.aws_networking_bucket}"
+    dynamodb_table_arn = "${aws_dynamodb_table.terraform_statelock.arn}"
+  }
+}
+
+data "template_file" "mary_moe_policy" {
+  template = "${file("templates/user_policy.tpl")}"
+
+  vars {
+    s3_bucket          = "${var.aws_application_bucket}"
+    dynamodb_table_arn = "${aws_dynamodb_table.terraform_statelock.arn}"
+  }
+}
+
 resource "aws_dynamodb_table" "terraform_statelock" {
   name           = "${var.aws_dynamodb_table}"
   read_capacity  = 20
@@ -45,80 +87,27 @@ resource "aws_dynamodb_table" "terraform_statelock" {
 }
 
 resource "aws_s3_bucket" "ddtnet" {
-  bucket = "${var.aws_networking_bucket}"
-  acl    = "private"
+  bucket        = "${var.aws_networking_bucket}"
+  acl           = "private"
   force_destroy = true
-  
+
   versioning {
     enabled = true
   }
 
-      policy = <<EOF
-{
-    "Version": "2008-10-17",
-    "Statement": [
-        {
-            "Sid": "ReadforAppTeam",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "${aws_iam_user.sallysue.arn}"
-            },
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::${var.aws_networking_bucket}/*"
-        },
-        {
-            "Sid": "",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "${aws_iam_user.marymoe.arn}"
-            },
-            "Action": "s3:*",
-            "Resource": [
-                "arn:aws:s3:::${var.aws_networking_bucket}",
-                "arn:aws:s3:::${var.aws_networking_bucket}/*"
-            ]
-        }
-    ]
-}
-EOF
+  policy = "${data.template_file.network_bucket_policy.rendered}"
 }
 
 resource "aws_s3_bucket" "ddtapp" {
-  bucket = "${var.aws_application_bucket}"
-  acl    = "private"
+  bucket        = "${var.aws_application_bucket}"
+  acl           = "private"
   force_destroy = true
 
   versioning {
     enabled = true
   }
-        policy = <<EOF
-{
-    "Version": "2008-10-17",
-    "Statement": [
-        {
-            "Sid": "ReadforNetTeam",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "${aws_iam_user.marymoe.arn}"
-            },
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::${var.aws_application_bucket}/*"
-        },
-        {
-            "Sid": "",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "${aws_iam_user.sallysue.arn}"
-            },
-            "Action": "s3:*",
-            "Resource": [
-                "arn:aws:s3:::${var.aws_application_bucket}",
-                "arn:aws:s3:::${var.aws_application_bucket}/*"
-            ]
-        }
-    ]
-}
-EOF
+
+  policy = "${data.template_file.application_bucket_policy.rendered}"
 }
 
 resource "aws_iam_user" "sallysue" {
@@ -126,9 +115,10 @@ resource "aws_iam_user" "sallysue" {
 }
 
 resource "aws_iam_user_policy" "sallysue_rw" {
-    name = "sallysue"
-    user = "${aws_iam_user.sallysue.name}"
-    policy= <<EOF
+  name = "sallysue"
+  user = "${aws_iam_user.sallysue.name}"
+
+  policy = <<EOF
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -153,17 +143,18 @@ EOF
 }
 
 resource "aws_iam_user" "marymoe" {
-    name = "marymoe"
+  name = "marymoe"
 }
 
 resource "aws_iam_access_key" "marymoe" {
-    user = "${aws_iam_user.marymoe.name}"
+  user = "${aws_iam_user.marymoe.name}"
 }
 
 resource "aws_iam_user_policy" "marymoe_rw" {
-    name = "marymoe"
-    user = "${aws_iam_user.marymoe.name}"
-   policy= <<EOF
+  name = "marymoe"
+  user = "${aws_iam_user.marymoe.name}"
+
+  policy = <<EOF
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -188,21 +179,21 @@ EOF
 }
 
 resource "aws_iam_access_key" "sallysue" {
-    user = "${aws_iam_user.sallysue.name}"
+  user = "${aws_iam_user.sallysue.name}"
 }
 
 resource "aws_iam_group_membership" "addsally" {
-    name = "add-sally"
+  name = "add-sally"
 
-    users = [
-        "${aws_iam_user.sallysue.name}"
-    ]
+  users = [
+    "${aws_iam_user.sallysue.name}",
+  ]
 
-    group = "EC2Admin"
+  group = "EC2Admin"
 }
 
 resource "local_file" "aws_keys" {
-    content = <<EOF
+  content = <<EOF
 [default]
 aws_access_key_id = ${var.aws_access_key}
 aws_secret_access_key = ${var.aws_secret_key}
@@ -216,8 +207,8 @@ aws_access_key_id = ${aws_iam_access_key.marymoe.id}
 aws_secret_access_key = ${aws_iam_access_key.marymoe.secret}
 
 EOF
-    filename = "${var.user_home_path}/.aws/credentials"
 
+  filename = "${var.user_home_path}/.aws/credentials"
 }
 
 ##################################################################################
@@ -225,17 +216,17 @@ EOF
 ##################################################################################
 
 output "sally-access-key" {
-    value = "${aws_iam_access_key.sallysue.id}"
+  value = "${aws_iam_access_key.sallysue.id}"
 }
 
 output "sally-secret-key" {
-    value = "${aws_iam_access_key.sallysue.secret}"
+  value = "${aws_iam_access_key.sallysue.secret}"
 }
 
 output "mary-access-key" {
-    value = "${aws_iam_access_key.marymoe.id}"
+  value = "${aws_iam_access_key.marymoe.id}"
 }
 
 output "mary-secret-key" {
-    value = "${aws_iam_access_key.marymoe.secret}"
+  value = "${aws_iam_access_key.marymoe.secret}"
 }
