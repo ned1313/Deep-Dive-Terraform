@@ -1,33 +1,53 @@
+##################################################################################
+# PROVIDERS
+##################################################################################
+
+provider "aws" {
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+  region     = "us-west-2"
+}
+
+##################################################################################
+# DATA
+##################################################################################
+
 data "terraform_remote_state" "networking" {
   backend = "s3"
   config {
-    key = "networking.state"
-    bucket = "ddt-networking"
+    key = "${var.network_remote_state_key}"
+    bucket = "${var.network_remote_state_bucket}"
     region = "us-west-2"
-    aws_access_key = "AKIAIVOLLTK6HSHSIHDA"
-    aws_secret_key = "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"
+    aws_access_key = "${var.aws_access_key}"
+    aws_secret_key = "${var.aws_secret_key}"
   }
 }
 
-data "template_file" "testing" {
-  count = "${length(data.terraform_remote_state.networking.private_subnets)}"
-  template = "${file("templates/my.tpl")}"
+##################################################################################
+# RESOURCES
+##################################################################################
 
-  vars {
-    tcount = "${count.index}"
-    subnet = "${data.terraform_remote_state.networking.private_subnets[count.index]}"
-    subnet_cidr = "${data.terraform_remote_state.networking.private_subnets_cidr_blocks[count.index]}"
+resource "aws_security_group" "bastion_ssh_sg" {
+  name = "bastion_ssh"
+  description = "Allow SSH to Bastion host from approved ranges"
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["${var.ip_range}"]
+  }
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  vpc_id = "${aws_vpc.default.id}"
+  tags {
+      Name = "terraform_bastion_ssh"
   }
 }
-
-resource "null_resource" "nothing" {}
-
-
 
 output "private_subnets" {
     value = "${data.terraform_remote_state.networking.private_subnets}"
-}
-
-output "rendered" {
-  value = "${data.template_file.testing.*.rendered}"
 }

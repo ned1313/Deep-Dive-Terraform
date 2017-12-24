@@ -118,28 +118,7 @@ resource "aws_iam_user_policy" "sallysue_rw" {
   name = "sallysue"
   user = "${aws_iam_user.sallysue.name}"
 
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "s3:*",
-            "Resource": [
-                "arn:aws:s3:::${var.aws_application_bucket}",
-                "arn:aws:s3:::${var.aws_application_bucket}/*"
-            ]
-        },
-                {
-            "Effect": "Allow",
-            "Action": ["dynamodb:*"],
-            "Resource": [
-                "${aws_dynamodb_table.terraform_statelock.arn}"
-            ]
-        }
-   ]
-}
-EOF
+  policy = "${data.template_file.sally_sue_policy.rendered}"
 }
 
 resource "aws_iam_user" "marymoe" {
@@ -154,28 +133,7 @@ resource "aws_iam_user_policy" "marymoe_rw" {
   name = "marymoe"
   user = "${aws_iam_user.marymoe.name}"
 
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "s3:*",
-            "Resource": [
-                "arn:aws:s3:::${var.aws_networking_bucket}",
-                "arn:aws:s3:::${var.aws_networking_bucket}/*"
-            ]
-        },
-                {
-            "Effect": "Allow",
-            "Action": ["dynamodb:*"],
-            "Resource": [
-                "${aws_dynamodb_table.terraform_statelock.arn}"
-            ]
-        }
-   ]
-}
-EOF
+  policy = "${data.template_file.mary_moe_policy.rendered}"
 }
 
 resource "aws_iam_access_key" "sallysue" {
@@ -186,7 +144,7 @@ resource "aws_iam_group_membership" "addsally" {
   name = "add-sally"
 
   users = [
-    "${aws_iam_user.sallysue.name}",
+    "${aws_iam_user.sallysue.name}"
   ]
 
   group = "EC2Admin"
@@ -214,19 +172,3 @@ EOF
 ##################################################################################
 # OUTPUT
 ##################################################################################
-
-output "sally-access-key" {
-  value = "${aws_iam_access_key.sallysue.id}"
-}
-
-output "sally-secret-key" {
-  value = "${aws_iam_access_key.sallysue.secret}"
-}
-
-output "mary-access-key" {
-  value = "${aws_iam_access_key.marymoe.id}"
-}
-
-output "mary-secret-key" {
-  value = "${aws_iam_access_key.marymoe.secret}"
-}
