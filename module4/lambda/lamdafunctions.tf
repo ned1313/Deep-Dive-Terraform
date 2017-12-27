@@ -117,17 +117,17 @@ resource "aws_api_gateway_resource" "tddresource" {
   path_part   = "tdd_ddb_query"
 }
 
-resource "aws_api_gateway_method" "tddpost" {
+resource "aws_api_gateway_method" "tddget" {
   rest_api_id   = "${aws_api_gateway_rest_api.tddapi.id}"
   resource_id   = "${aws_api_gateway_resource.tddresource.id}"
-  http_method   = "POST"
+  http_method   = "GET"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "integration" {
   rest_api_id             = "${aws_api_gateway_rest_api.tddapi.id}"
   resource_id             = "${aws_api_gateway_resource.tddresource.id}"
-  http_method             = "${aws_api_gateway_method.tddpost.http_method}"
+  http_method             = "${aws_api_gateway_method.tddget.http_method}"
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.data_source_ddb.arn}/invocations"
@@ -140,11 +140,11 @@ resource "aws_lambda_permission" "apigw_lambda" {
   principal     = "apigateway.amazonaws.com"
 
   # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
-  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${var.accountId}:${aws_api_gateway_rest_api.tddapi.id}/*/${aws_api_gateway_method.tddpost.http_method}${aws_api_gateway_resource.tddresource.path}"
+  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${var.accountId}:${aws_api_gateway_rest_api.tddapi.id}/*/${aws_api_gateway_method.tddget.http_method}${aws_api_gateway_resource.tddresource.path}"
 }
 
 resource "aws_api_gateway_deployment" "ddtdeployment" {
-  depends_on = ["aws_api_gateway_method.tddpost"]
+  depends_on = ["aws_api_gateway_integration.integration"]
 
   rest_api_id = "${aws_api_gateway_rest_api.tddapi.id}"
   stage_name  = "prod"

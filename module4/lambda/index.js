@@ -8,7 +8,7 @@ exports.handler = (event, context, callback) => {
     // TODO implement
         var params = {
             ExpressionAttributeValues: {
-                ':p': {S: event.body},
+                ':p': {S: event.headers["QueryText"]},
             },
             KeyConditionExpression: 'ProjectEnvironment = :p',
             ProjectionExpression: 'ProjectEnvironment, Subnets, Environment, VPCIPAddressRange',

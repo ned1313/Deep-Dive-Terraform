@@ -1,0 +1,26 @@
+Workspace development
+Project Code 8675309
+URL https://4rpwd825o5.execute-api.us-west-2.amazonaws.com/test/tdd_ddb_query
+{
+    "value":  [
+                  {
+                      "Subnets":  {
+                                      "S":  "2"
+                                  },
+                      "VPCIPAddressRange":  {
+                                                "S":  "10.0.0.0/16"
+                                            },
+                      "Environment":  {
+                                          "S":  "development"
+                                      },
+                      "ProjectEnvironment":  {
+                                                 "S":  "development-8675309"
+                                             }
+                  }
+              ],
+    "Count":  1
+}
+Workspace development
+Project Code 8675309
+URL https://4rpwd825o5.execute-api.us-west-2.amazonaws.com/test/tdd_ddb_query
+{"Subnets":{"S":"2"},"VPCIPAddressRange":{"S":"10.0.0.0/16"},"Environment":{"S":"development"},"ProjectEnvironment":{"S":"development-8675309"}}
