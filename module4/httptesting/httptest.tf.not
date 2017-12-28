@@ -13,5 +13,5 @@ data "http" "example" {
 }
 
 output "response" {
-    value = "${data.http.example.body.Subnets}"
+    value = "${map(split(",",data.http.example.body))}"
 }

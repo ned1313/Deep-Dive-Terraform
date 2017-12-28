@@ -11,7 +11,6 @@ exports.handler = (event, context, callback) => {
                 ':p': {S: event.headers["querytext"]},
             },
             KeyConditionExpression: 'ProjectEnvironment = :p',
-            ProjectionExpression: 'ProjectEnvironment, Subnets, Environment, VPCIPAddressRange',
             TableName: 'ddt-datasource'
         };
 
@@ -23,9 +22,19 @@ exports.handler = (event, context, callback) => {
             var responseBody = '{';
             data.Items.forEach(function(item) {
             responseBody += '"ProjectEnvironment":"' + item.ProjectEnvironment.S
-            + '","Subnets":"' + item.Subnets.S
-            + '","Environment":"' + item.Environment.S
-            + '","VPCIPAddressRange":"' + item.VPCIPAddressRange.S
+            + '","asg_instance_size":"' + item.asg_instance_size.S
+            + '","asg_min_size":"' + item.asg_min_size.S
+            + '","asg_max_size":"' + item.asg_max_size.S
+            + '","environment":"' + item.environment.S
+            + '","billing_code":"' + item.billing_code.S
+            + '","project_code":"' + item.project_code.S
+            + '","network_lead":"' + item.network_lead.S
+            + '","application_lead":"' + item.application_lead.S
+            + '","rds_version":"' + item.rds_version.S
+            + '","rds_instance_size":"' + item.rds_instance_size.S
+            + '","rds_multi_az":"' + item.rds_multi_az.S
+            + '","rds_storage_size":"' + item.rds_storage_size.S
+            + '","rds_db_name":"' + item.rds_db_name.S
             + '"}';
         });
             var response = {

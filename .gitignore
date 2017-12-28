@@ -5,3 +5,4 @@
 **/.terraform/**
 **/crash.log
 **/*.tfplan
+debuglog.txt

@@ -16,6 +16,6 @@ data "external" "example" {
   }
 }
 
-output "response" {
+output "result" {
     value = "${data.external.example.result}"
 }
