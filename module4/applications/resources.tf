@@ -11,55 +11,6 @@ provider "aws" {
 }
 
 ##################################################################################
-# DATA
-##################################################################################
-locals {
-  workspace_key = "env:/${terraform.workspace}/${var.network_remote_state_key}"
-}
-
-
-data "terraform_remote_state" "networking" {
-  backend = "s3"
-
-  config {
-    key            = "${terraform.workspace == "default" ? var.network_remote_state_key : local.workspace_key}"
-    bucket         = "${var.network_remote_state_bucket}"
-    region         = "us-west-2"
-    aws_access_key = "${var.aws_access_key}"
-    aws_secret_key = "${var.aws_secret_key}"
-  }
-}
-
-data "aws_ami" "aws_linux" {
-  most_recent = true
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
-
-  filter {
-    name   = "name"
-    values = ["amzn-ami-hvm-20*"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
-}
-
-##################################################################################
 # RESOURCES
 ##################################################################################
 
@@ -70,7 +21,7 @@ resource "aws_launch_configuration" "webapp_lc" {
 
   name_prefix   = "${terraform.workspace}-ddt-lc-"
   image_id      = "${data.aws_ami.aws_linux.id}"
-  instance_type = "${var.instance_type}"
+  instance_type = "${data.external.configuration.result.asg_instance_size}"
 
   security_groups = [
     "${aws_security_group.webapp_http_inbound_sg.id}",
@@ -104,10 +55,7 @@ resource "aws_elb" "webapp_elb" {
 
   security_groups = ["${aws_security_group.webapp_http_inbound_sg.id}"]
 
-  tags {
-    Name        = "ddt-webapp-elb"
-    Environment = "${terraform.workspace}"
-  }
+  tags = "${local.common_tags}"
 }
 
 resource "aws_autoscaling_group" "webapp_asg" {
@@ -117,8 +65,8 @@ resource "aws_autoscaling_group" "webapp_asg" {
 
   vpc_zone_identifier   = ["${data.terraform_remote_state.networking.public_subnets}"]
   name                  = "ddt_webapp_asg"
-  max_size              = "${var.asg_max}"
-  min_size              = "${var.asg_min}"
+  max_size              = "${data.external.configuration.result.asg_min_size}"
+  min_size              = "${data.external.configuration.result.asg_max_size}"
   wait_for_elb_capacity = false
   force_delete          = true
   launch_configuration  = "${aws_launch_configuration.webapp_lc.id}"
@@ -199,16 +147,13 @@ resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
 
 resource "aws_instance" "bastion" {
   ami                         = "${data.aws_ami.aws_linux.id}"
-  instance_type               = "${var.instance_type}"
+  instance_type               = "${data.external.configuration.result.asg_instance_size}"
   subnet_id                   = "${element(data.terraform_remote_state.networking.public_subnets,0)}"
   associate_public_ip_address = true
   vpc_security_group_ids      = ["${aws_security_group.bastion_ssh_sg.id}"]
   key_name                    = "${var.key_name}"
 
-  tags {
-    Name        = "ddt-bastion"
-    Environment = "${terraform.workspace}"
-  }
+  tags = "${local.common_tags}"
 }
 
 resource "aws_eip" "bastion" {
@@ -223,19 +168,17 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 resource "aws_db_instance" "rds" {
   identifier             = "${terraform.workspace}-ddt-rds"
-  allocated_storage      = "${var.rds_storage}"
-  engine                 = "${var.rds_engine}"
-  engine_version         = "${var.rds_engine_version}"
-  instance_class         = "${var.rds_instance_class}"
-  multi_az               = "${var.rds_multi_az}"
-  name                   = "${var.rds_db_name}"
+  allocated_storage      = "${data.external.configuration.result.rds_storage_size}"
+  engine                 = "${data.external.configuration.result.rds_engine}"
+  engine_version         = "${data.external.configuration.result.rds_version}"
+  instance_class         = "${data.external.configuration.result.rds_instance_size}"
+  multi_az               = "${data.external.configuration.result.rds_multi_az}"
+  name                   = "${terraform.workspace}-${data.external.configuration.result.rds_db_name}"
   username               = "${var.rds_username}"
   password               = "${var.rds_password}"
   db_subnet_group_name   = "${aws_db_subnet_group.db_subnet_group.id}"
   vpc_security_group_ids = ["${aws_security_group.rds_sg.id}"]
   skip_final_snapshot    = true
 
-  tags {
-    Environment = "${terraform.workspace}"
-  }
+  tags = "${local.common_tags}"
 }

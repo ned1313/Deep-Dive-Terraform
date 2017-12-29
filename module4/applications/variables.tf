@@ -15,50 +15,8 @@ variable "key_name" {
   default = "PluralsightKeys"
 }
 
-variable "instance_type" {
-  default = "t2.micro"
-}
-
-variable "asg_min" {
-  default = "2"
-}
-
-variable "asg_max" {
-  default = "10"
-}
-
 variable "ip_range" {
   default = "0.0.0.0/0"
-}
-
-#RDS variable
-variable "rds_storage" {
-  default = "5"
-}
-
-variable "rds_engine" {
-  default     = "mysql"
-  description = "Engine type, example values mysql, postgres"
-}
-
-variable "rds_engine_version" {
-  description = "Engine version"
-  default     = "5.6.37"
-}
-
-variable "rds_multi_az" {
-  description = "Multi-AZ or not"
-  default     = false
-}
-
-variable "rds_instance_class" {
-  default     = "db.t2.micro"
-  description = "Instance class"
-}
-
-variable "rds_db_name" {
-  default     = "testdb"
-  description = "db name"
 }
 
 variable "rds_username" {

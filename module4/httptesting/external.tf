@@ -17,5 +17,5 @@ data "external" "example" {
 }
 
 output "result" {
-    value = "${data.external.example.result}"
+    value = "${data.external.example.result.vpc_subnet_count}"
 }
