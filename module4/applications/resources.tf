@@ -65,24 +65,24 @@ resource "aws_autoscaling_group" "webapp_asg" {
 
   vpc_zone_identifier   = ["${data.terraform_remote_state.networking.public_subnets}"]
   name                  = "ddt_webapp_asg"
-  max_size              = "${data.external.configuration.result.asg_min_size}"
-  min_size              = "${data.external.configuration.result.asg_max_size}"
+  max_size              = "${data.external.configuration.result.asg_max_size}"
+  min_size              = "${data.external.configuration.result.asg_min_size}"
   wait_for_elb_capacity = false
   force_delete          = true
   launch_configuration  = "${aws_launch_configuration.webapp_lc.id}"
   load_balancers        = ["${aws_elb.webapp_elb.name}"]
 
-  tag {
-    key                 = "Name"
-    value               = "ddt_webapp_asg"
-    propagate_at_launch = "true"
-  }
+  tags = ["${
+    list(
+      map("key", "Name", "value", "ddt_webapp_asg", "propagate_at_launch", true),
+      map("key", "environment", "value", "${data.external.configuration.result.environment}", "propagate_at_launch", true),
+      map("key", "billing_code", "value", "${data.external.configuration.result.billing_code}", "propagate_at_launch", true),
+      map("key", "project_code", "value", "${data.external.configuration.result.project_code}", "propagate_at_launch", true),
+      map("key", "network_lead", "value", "${data.external.configuration.result.network_lead}", "propagate_at_launch", true),
+      map("key", "application_lead", "value", "${data.external.configuration.result.application_lead}", "propagate_at_launch", true)
+    )
+  }"]
 
-  tag {
-    key                 = "Environment"
-    value               = "${terraform.workspace}"
-    propagate_at_launch = "true"
-  }
 }
 
 #
@@ -153,7 +153,12 @@ resource "aws_instance" "bastion" {
   vpc_security_group_ids      = ["${aws_security_group.bastion_ssh_sg.id}"]
   key_name                    = "${var.key_name}"
 
-  tags = "${local.common_tags}"
+  tags = "${merge(
+    local.common_tags,
+    map(
+      "Name", "ddt_bastion_host",
+    )
+  )}"
 }
 
 resource "aws_eip" "bastion" {
@@ -173,7 +178,7 @@ resource "aws_db_instance" "rds" {
   engine_version         = "${data.external.configuration.result.rds_version}"
   instance_class         = "${data.external.configuration.result.rds_instance_size}"
   multi_az               = "${data.external.configuration.result.rds_multi_az}"
-  name                   = "${terraform.workspace}-${data.external.configuration.result.rds_db_name}"
+  name                   = "${terraform.workspace}${data.external.configuration.result.rds_db_name}"
   username               = "${var.rds_username}"
   password               = "${var.rds_password}"
   db_subnet_group_name   = "${aws_db_subnet_group.db_subnet_group.id}"
