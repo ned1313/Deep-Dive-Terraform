@@ -8,7 +8,7 @@ locals {
   }
 }
 
-data "template_file" "private_cidrsubnet" {
+data "template_file" "public_cidrsubnet" {
   count = "${data.external.configuration.result.vpc_subnet_count}"
 
   template = "$${cidrsubnet(vpc_cidr,8,current_count)}"
@@ -19,7 +19,7 @@ data "template_file" "private_cidrsubnet" {
   }
 }
 
-data "template_file" "public_cidrsubnet" {
+data "template_file" "private_cidrsubnet" {
   count = "${data.external.configuration.result.vpc_subnet_count}"
 
   template = "$${cidrsubnet(vpc_cidr,8,current_count)}"
