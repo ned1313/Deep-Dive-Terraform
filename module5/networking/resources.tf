@@ -21,24 +21,16 @@ data "aws_availability_zones" "available" {}
 # NETWORKING #
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
-  name = "Terraform"
+  name   = "ddt-${terraform.workspace}"
 
-  cidr = "10.0.0.0/16"
-  azs = "${slice(data.aws_availability_zones.available.names,0,var.subnet_count)}"
-  private_subnets = ["10.0.1.0/24", "10.0.3.0/24"]
-  public_subnets = ["10.0.0.0/24", "10.0.2.0/24"]
+  cidr            = "${data.external.configuration.result.vpc_cidr_range}"
+  azs             = "${slice(data.aws_availability_zones.available.names,0,data.external.configuration.result.vpc_subnet_count)}"
+  private_subnets = "${data.template_file.private_cidrsubnet.*.rendered}"
+  public_subnets  = "${data.template_file.public_cidrsubnet.*.rendered}"
 
   enable_nat_gateway = true
 
   create_database_subnet_group = false
 
-  
-  tags {
-  }
+  tags = "${local.common_tags}"
 }
-
-
-
-
-
-

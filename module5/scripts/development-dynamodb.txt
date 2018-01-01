@@ -1,0 +1,19 @@
+{
+  "application_lead": "Sally Sue",
+  "asg_instance_size": "t2.micro",
+  "asg_max_size": "5",
+  "asg_min_size": "2",
+  "billing_code": "342647563",
+  "environment": "development",
+  "network_lead": "Mary Moe",
+  "project_code": "8675309",
+  "ProjectEnvironment": "development-8675309",
+  "rds_db_name": "wordpress",
+  "rds_engine": "mysql",
+  "rds_instance_size": "db.t2.micro",
+  "rds_multi_az": "false",
+  "rds_storage_size": "5",
+  "rds_version": "5.6.37",
+  "vpc_cidr_range": "10.0.0.0/16",
+  "vpc_subnet_count": "2"
+}

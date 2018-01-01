@@ -10,9 +10,9 @@ pipeline {
         PATH = "$TF_HOME:$PATH"
     }
     stages {
-        stage('Init'){
+        stage('NetworkInit'){
             steps {
-                dir('module5/'){
+                dir('module5/networking/'){
                     sh 'terraform --version'
                     sh "terraform init -input=false"
                     sh "echo \$PWD"
@@ -20,15 +20,15 @@ pipeline {
                 }
             }
         }
-        stage('Plan'){
+        stage('NetworkPlan'){
             steps {
-                dir('module5/'){
+                dir('module5/networking/'){
                     sh "terraform plan -var 'aws_access_key=$AWS_ACCESS_KEY' -var 'aws_secret_key=$AWS_SECRET_KEY' -out=terraform.tfplan;echo \$? > status"
                     stash name: "terraform-plan", includes: "terraform.tfplan"
                 }
             }
         }
-        stage('Apply'){
+        stage('NetworkApply'){
             steps {
                 script{
                     def apply = false
@@ -41,7 +41,46 @@ pipeline {
                         currentBuild.result = 'UNSTABLE'
                     }
                     if(apply){
-                        dir('module5'){
+                        dir('module5/networking'){
+                            unstash "terraform-plan"
+                            sh 'terraform apply terraform.tfplan'
+                        }
+                    }
+                }
+            }
+        }
+        stage('ApplicationInit'){
+            steps {
+                dir('module5/applications/'){
+                    sh 'terraform --version'
+                    sh "terraform init -input=false"
+                    sh "echo \$PWD"
+                    sh "whoami"
+                }
+            }
+        }
+        stage('ApplicationPlan'){
+            steps {
+                dir('module5/applications/'){
+                    sh "terraform plan -var 'aws_access_key=$AWS_ACCESS_KEY' -var 'aws_secret_key=$AWS_SECRET_KEY' -out=terraform.tfplan;echo \$? > status"
+                    stash name: "terraform-plan", includes: "terraform.tfplan"
+                }
+            }
+        }
+        stage('ApplicationApply'){
+            steps {
+                script{
+                    def apply = false
+                    try {
+                        input message: 'confirm apply', ok: 'Apply Config'
+                        apply = true
+                    } catch (err) {
+                        apply = false
+                        sh "terraform destroy -var 'aws_access_key=$AWS_ACCESS_KEY' -var 'aws_secret_key=$AWS_SECRET_KEY' -force"
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                    if(apply){
+                        dir('module5/applications'){
                             unstash "terraform-plan"
                             sh 'terraform apply terraform.tfplan'
                         }
