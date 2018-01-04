@@ -3,6 +3,9 @@ pipeline {
     tools {
         "org.jenkinsci.plugins.terraform.TerraformInstallation" "terraform-0.11.1"
     }
+    parameters {
+        string(name: 'LAMBDA_URL', defaultValue: '', description: 'URL to the Lamdba function')
+    }
     environment {
         TF_HOME = tool('terraform-0.11.1')
         PATH = "$TF_HOME:$PATH"
@@ -30,7 +33,8 @@ pipeline {
         stage('NetworkPlan'){
             steps {
                 dir('module5/networking/'){
-                    sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' -var 'aws_secret_key=$NETWORKING_SECRET_KEY' -out=terraform-networking.tfplan;echo \$? > status"
+                    sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
+                     -var 'url=${params.LAMBDA_URL}' -out=terraform-networking.tfplan;echo \$? > status"
                     stash name: "terraform-networking-plan", includes: "terraform-networking.tfplan"
                 }
             }
@@ -70,7 +74,8 @@ pipeline {
         stage('ApplicationPlan'){
             steps {
                 dir('module5/applications/'){
-                    sh "terraform plan -var 'aws_access_key=$APPLICATION_ACCESS_KEY' -var 'aws_secret_key=$APPLICATION_SECRET_KEY' -out=terraform-application.tfplan;echo \$? > status"
+                    sh "terraform plan -var 'aws_access_key=$APPLICATION_ACCESS_KEY' -var 'aws_secret_key=$APPLICATION_SECRET_KEY' \
+                    -var 'url=${params.LAMBDA_URL}' -out=terraform-application.tfplan;echo \$? > status"
                     stash name: "terraform-application-plan", includes: "terraform-application.tfplan"
                 }
             }
