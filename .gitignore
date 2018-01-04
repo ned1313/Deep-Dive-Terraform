@@ -6,3 +6,4 @@
 **/crash.log
 **/*.tfplan
 debuglog.txt
+**/terraform_plugins/**
