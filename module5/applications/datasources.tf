@@ -52,7 +52,7 @@ data "aws_ami" "aws_linux" {
 }
 
 data "external" "configuration" {
-  program = ["powershell.exe", "../scripts/getenvironment.ps1"]
+  program = ["bash", "../scripts/getenvironment.sh"]
 
   # Optional request headers
   query = {
