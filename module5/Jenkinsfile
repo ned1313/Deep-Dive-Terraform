@@ -5,6 +5,7 @@ pipeline {
     }
     parameters {
         string(name: 'LAMBDA_URL', defaultValue: '', description: 'URL to the Lamdba function')
+        string(name: 'WORKSPACE', defaultValue: 'development', description:'worspace to use in Terraform')
     }
     environment {
         TF_HOME = tool('terraform-0.11.1')
@@ -22,7 +23,7 @@ pipeline {
             steps {
                 dir('module5/networking/'){
                     sh 'terraform --version'
-                    sh "terraform init -input=false -plugin-dir=/var/jenkins_home/terraform_plugins/ \
+                    sh "terraform init -input=false -plugin-dir=/var/jenkins_home/terraform_plugins \
                      --backend-config='dynamodb_table=$DYNAMODB_STATELOCK' --backend-config='bucket=$NETWORKING_BUCKET' \
                      --backend-config='access_key=$NETWORKING_ACCESS_KEY' --backend-config='secret_key=$NETWORKING_SECRET_KEY'"
                     sh "echo \$PWD"
@@ -33,6 +34,7 @@ pipeline {
         stage('NetworkPlan'){
             steps {
                 dir('module5/networking/'){
+                    sh "terraform workspace new ${params.WORKSPACE}"
                     sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
                      -var 'url=${params.LAMBDA_URL}' -out=terraform-networking.tfplan;echo \$? > status"
                     stash name: "terraform-networking-plan", includes: "terraform-networking.tfplan"
@@ -74,6 +76,7 @@ pipeline {
         stage('ApplicationPlan'){
             steps {
                 dir('module5/applications/'){
+                    sh "terraform workspace new ${params.WORKSPACE}"
                     sh "terraform plan -var 'aws_access_key=$APPLICATION_ACCESS_KEY' -var 'aws_secret_key=$APPLICATION_SECRET_KEY' \
                     -var 'url=${params.LAMBDA_URL}' -out=terraform-application.tfplan;echo \$? > status"
                     stash name: "terraform-application-plan", includes: "terraform-application.tfplan"
