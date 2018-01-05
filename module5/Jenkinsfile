@@ -108,9 +108,11 @@ pipeline {
     post {
         always {
             dir('module5/networking/'){
+                sh "terraform workspace select default"
                 sh "terraform workspace delete -force ${params.WORKSPACE}"
             }
             dir('module5/applications/'){
+                sh "terraform workspace select default"
                 sh "terraform workspace delete -force ${params.WORKSPACE}"
             }
         }
