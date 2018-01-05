@@ -105,5 +105,10 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            sh "terraform workspace delete ${params.WORKSPACE} -force" 
+        }
+    }
 
 }

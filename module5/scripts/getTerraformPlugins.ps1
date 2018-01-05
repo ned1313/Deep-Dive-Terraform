@@ -1,5 +1,5 @@
 #List of plugins
-$plugins = @("terraform-provider-aws","terraform-provider-external","terraform-provider-template")
+$plugins = @("terraform-provider-aws","terraform-provider-external","terraform-provider-template","terraform-provider-terraform")
 #Folder for plugins
 $folderpath = ".\terraform_plugins"
 #Set to TLS 1.2
