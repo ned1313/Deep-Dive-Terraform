@@ -138,11 +138,12 @@ resource "aws_iam_access_key" "application" {
   user = "${aws_iam_user.application.name}"
 }
 
-resource "aws_iam_group_membership" "addapplication" {
-  name = "add-application"
+resource "aws_iam_group_membership" "addusers" {
+  name = "add-users"
 
   users = [
-    "${aws_iam_user.application.name}"
+    "${aws_iam_user.application.name}",
+    "${aws_iam_user.networking.name}"
   ]
 
   group = "EC2Admin"
@@ -152,18 +153,18 @@ resource "aws_iam_group_membership" "addapplication" {
 # OUTPUT
 ##################################################################################
 
-output "application-access-key" {
+output "application_access_key" {
     value = "${aws_iam_access_key.application.id}"
 }
 
-output "application-secret-key" {
+output "application_secret_key" {
     value = "${aws_iam_access_key.application.secret}"
 }
 
-output "networking-access-key" {
+output "networking_access_key" {
     value = "${aws_iam_access_key.networking.id}"
 }
 
-output "networking-secret-key" {
+output "networking_secret_key" {
     value = "${aws_iam_access_key.networking.secret}"
 }
