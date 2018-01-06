@@ -9,6 +9,7 @@ pipeline {
     }
     environment {
         TF_HOME = tool('terraform-0.11.1')
+        TF_IN_AUTOMATION = "true"
         PATH = "$TF_HOME:$PATH"
         DYNAMODB_STATELOCK = "ddt-tfstatelock"
         NETWORKING_BUCKET = "ddt-networking"
@@ -25,7 +26,8 @@ pipeline {
                     sh 'terraform --version'
                     sh "terraform init -input=false -plugin-dir=/var/jenkins_home/terraform_plugins \
                      --backend-config='dynamodb_table=$DYNAMODB_STATELOCK' --backend-config='bucket=$NETWORKING_BUCKET' \
-                     --backend-config='access_key=$NETWORKING_ACCESS_KEY' --backend-config='secret_key=$NETWORKING_SECRET_KEY'"
+                     --backend-config='access_key=$NETWORKING_ACCESS_KEY' --backend-config='secret_key=$NETWORKING_SECRET_KEY' \
+                     -force-copy"
                     sh "echo \$PWD"
                     sh "whoami"
                 }
@@ -73,7 +75,8 @@ pipeline {
                 dir('module5/applications/'){
                     sh "terraform init -input=false -plugin-dir=/var/jenkins_home/terraform_plugins \
                      --backend-config='dynamodb_table=$DYNAMODB_STATELOCK' --backend-config='bucket=$APPLICATION_BUCKET' \
-                     --backend-config='access_key=$APPLICATION_ACCESS_KEY' --backend-config='secret_key=$APPLICATION_SECRET_KEY'"
+                     --backend-config='access_key=$APPLICATION_ACCESS_KEY' --backend-config='secret_key=$APPLICATION_SECRET_KEY' \
+                     -force-copy"
                     sh "echo \$PWD"
                     sh "whoami"
                 }
