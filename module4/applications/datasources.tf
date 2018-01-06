@@ -14,11 +14,10 @@ data "terraform_remote_state" "networking" {
   backend = "s3"
 
   config {
-    key            = "${terraform.workspace == "default" ? var.network_remote_state_key : local.workspace_key}"
-    bucket         = "${var.network_remote_state_bucket}"
-    region         = "us-west-2"
-    access_key = "${var.aws_access_key}"
-    secret_key = "${var.aws_secret_key}"
+    key     = "${terraform.workspace == "default" ? var.network_remote_state_key : local.workspace_key}"
+    bucket  = "${var.network_remote_state_bucket}"
+    region  = "us-west-2"
+    profile = "${var.aws_profile}"
   }
 }
 

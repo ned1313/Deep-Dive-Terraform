@@ -148,9 +148,8 @@ resource "aws_api_gateway_deployment" "ddtdeployment" {
 
   rest_api_id = "${aws_api_gateway_rest_api.tddapi.id}"
   stage_name  = "prod"
-
 }
 
 output "invoke-url" {
-    value = "https://${aws_api_gateway_deployment.ddtdeployment.rest_api_id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${aws_api_gateway_deployment.ddtdeployment.stage_name}/${aws_lambda_function.data_source_ddb.function_name}"
+  value = "https://${aws_api_gateway_deployment.ddtdeployment.rest_api_id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${aws_api_gateway_deployment.ddtdeployment.stage_name}/${aws_lambda_function.data_source_ddb.function_name}"
 }

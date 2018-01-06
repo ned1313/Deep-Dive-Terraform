@@ -56,8 +56,8 @@ data "template_file" "mary_moe_policy" {
   template = "${file("templates/user_policy.tpl")}"
 
   vars {
-    s3_rw_bucket          = "${var.aws_networking_bucket}"
-    s3_ro_bucket          = "${var.aws_application_bucket}"
+    s3_rw_bucket       = "${var.aws_networking_bucket}"
+    s3_ro_bucket       = "${var.aws_application_bucket}"
     dynamodb_table_arn = "${aws_dynamodb_table.terraform_statelock.arn}"
   }
 }
@@ -66,8 +66,8 @@ data "template_file" "sally_sue_policy" {
   template = "${file("templates/user_policy.tpl")}"
 
   vars {
-    s3_rw_bucket          = "${var.aws_application_bucket}"
-    s3_ro_bucket          = "${var.aws_networking_bucket}"
+    s3_rw_bucket       = "${var.aws_application_bucket}"
+    s3_ro_bucket       = "${var.aws_networking_bucket}"
     dynamodb_table_arn = "${aws_dynamodb_table.terraform_statelock.arn}"
   }
 }
@@ -161,7 +161,7 @@ resource "aws_iam_group_membership" "add-ec2admin" {
 
   users = [
     "${aws_iam_user.sallysue.name}",
-    "${aws_iam_user.marymoe.name}"
+    "${aws_iam_user.marymoe.name}",
   ]
 
   group = "${aws_iam_group.ec2admin.name}"
@@ -171,7 +171,7 @@ resource "aws_iam_group_membership" "add-rdsadmin" {
   name = "add-rdsadmin"
 
   users = [
-    "${aws_iam_user.sallysue.name}"
+    "${aws_iam_user.sallysue.name}",
   ]
 
   group = "${aws_iam_group.rdsadmin.name}"
@@ -199,3 +199,4 @@ EOF
 ##################################################################################
 # OUTPUT
 ##################################################################################
+

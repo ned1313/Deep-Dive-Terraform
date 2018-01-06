@@ -7,8 +7,7 @@ variable "network_remote_state_bucket" {
   default = "ddt-networking"
 }
 
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
+variable "aws_profile" {}
 
 #Web front end variables
 variable "key_name" {
@@ -25,7 +24,7 @@ variable "rds_username" {
 }
 
 variable "rds_password" {
-  default = "TerraformIsNumber1!"
+  default     = "TerraformIsNumber1!"
   description = "password, provide through your ENV variables"
 }
 

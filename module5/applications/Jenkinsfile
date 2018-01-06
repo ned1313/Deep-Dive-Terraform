@@ -57,6 +57,7 @@ pipeline {
                             sh "terraform destroy -var 'aws_access_key=$APPLICATION_ACCESS_KEY' \
                              -var 'aws_secret_key=$APPLICATION_SECRET_KEY' -var 'url=${params.LAMBDA_URL}' -force"
                         }
+                         currentBuild.result = 'UNSTABLE'
                     }
                     if(apply){
                         dir('module5/applications'){
