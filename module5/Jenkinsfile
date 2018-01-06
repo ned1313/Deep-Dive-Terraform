@@ -34,14 +34,16 @@ pipeline {
         stage('NetworkPlan'){
             steps {
                 dir('module5/networking/'){
-                    try {
-                        sh "terraform workspace new ${params.WORKSPACE}"
-                    } catch (err) {
-                        sh "terraform workspace select ${params.WORKSPACE}"
+                    script {
+                        try {
+                           sh "terraform workspace new ${params.WORKSPACE}"
+                        } catch (err) {
+                            sh "terraform workspace select ${params.WORKSPACE}"
+                        }
+                        sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
+                        -var 'url=${params.LAMBDA_URL}' -out=terraform-networking.tfplan;echo \$? > status"
+                        stash name: "terraform-networking-plan", includes: "terraform-networking.tfplan"
                     }
-                    sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
-                     -var 'url=${params.LAMBDA_URL}' -out=terraform-networking.tfplan;echo \$? > status"
-                    stash name: "terraform-networking-plan", includes: "terraform-networking.tfplan"
                 }
             }
         }
@@ -80,14 +82,16 @@ pipeline {
         stage('ApplicationPlan'){
             steps {
                 dir('module5/applications/'){
-                    try {
-                        sh "terraform workspace new ${params.WORKSPACE}"
-                    } catch (err) {
-                        sh "terraform workspace select ${params.WORKSPACE}"
+                    script {
+                        try {
+                            sh "terraform workspace new ${params.WORKSPACE}"
+                        } catch (err) {
+                            sh "terraform workspace select ${params.WORKSPACE}"
+                        }
+                        sh "terraform plan -var 'aws_access_key=$APPLICATION_ACCESS_KEY' -var 'aws_secret_key=$APPLICATION_SECRET_KEY' \
+                        -var 'url=${params.LAMBDA_URL}' -out=terraform-application.tfplan;echo \$? > status"
+                        stash name: "terraform-application-plan", includes: "terraform-application.tfplan"
                     }
-                    sh "terraform plan -var 'aws_access_key=$APPLICATION_ACCESS_KEY' -var 'aws_secret_key=$APPLICATION_SECRET_KEY' \
-                    -var 'url=${params.LAMBDA_URL}' -out=terraform-application.tfplan;echo \$? > status"
-                    stash name: "terraform-application-plan", includes: "terraform-application.tfplan"
                 }
             }
         }
