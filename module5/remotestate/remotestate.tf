@@ -58,7 +58,8 @@ data "template_file" "networking_policy" {
   template = "${file("templates/user_policy.tpl")}"
 
   vars {
-    s3_bucket          = "${var.aws_networking_bucket}"
+    s3_rw_bucket          = "${var.aws_networking_bucket}"
+    s3_ro_bucket          = "${var.aws_application_bucket}"
     dynamodb_table_arn = "${aws_dynamodb_table.terraform_statelock.arn}"
   }
 }
@@ -67,7 +68,8 @@ data "template_file" "application_policy" {
   template = "${file("templates/user_policy.tpl")}"
 
   vars {
-    s3_bucket          = "${var.aws_application_bucket}"
+    s3_rw_bucket          = "${var.aws_application_bucket}"
+    s3_ro_bucket          = "${var.aws_networking_bucket}"
     dynamodb_table_arn = "${aws_dynamodb_table.terraform_statelock.arn}"
   }
 }
