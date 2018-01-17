@@ -10,4 +10,4 @@ http://127.0.0.1:8080
 
 #Copy Terraform plugins
 docker ps
-docker cp .\module5\scripts\terraform_plugins container_name:/var/jenkins_home
+docker cp .\terraform_plugins container_name:/var/jenkins_home
