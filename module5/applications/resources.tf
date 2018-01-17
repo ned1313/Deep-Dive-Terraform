@@ -20,7 +20,7 @@ resource "aws_launch_configuration" "webapp_lc" {
   }
 
   name_prefix   = "${terraform.workspace}-ddt-lc-"
-  image_id      = "${data.aws_ami.aws_linux.id}"
+  image_id      = "${data.aws_ami.ubuntu.id}"
   instance_type = "${data.external.configuration.result.asg_instance_size}"
 
   security_groups = [
@@ -146,7 +146,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
 }
 
 resource "aws_instance" "bastion" {
-  ami                         = "${data.aws_ami.aws_linux.id}"
+  ami                         = "${data.aws_ami.ubuntu.id}"
   instance_type               = "${data.external.configuration.result.asg_instance_size}"
   subnet_id                   = "${element(data.terraform_remote_state.networking.public_subnets,0)}"
   associate_public_ip_address = true

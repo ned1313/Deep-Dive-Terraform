@@ -22,17 +22,12 @@ data "terraform_remote_state" "networking" {
   }
 }
 
-data "aws_ami" "aws_linux" {
+data "aws_ami" "ubuntu" {
   most_recent = true
 
   filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
-
-  filter {
     name   = "name"
-    values = ["amzn-ami-hvm-20*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server*"]
   }
 
   filter {
