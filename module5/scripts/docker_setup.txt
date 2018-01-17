@@ -11,3 +11,7 @@ http://127.0.0.1:8080
 #Copy Terraform plugins
 docker ps
 docker cp .\terraform_plugins container_name:/var/jenkins_home
+
+docker exec -it -u root gallant_neumann /bin/bash
+apt-get update
+apt-get install jq -y
