@@ -1,6 +1,6 @@
 {
   "application_lead": "Sally Sue",
-  "asg_instance_size": "t2.small",
+  "asg_instance_size": "t2.large",
   "asg_max_size": "3",
   "asg_min_size": "10",
   "billing_code": "342647563",
@@ -10,7 +10,7 @@
   "ProjectEnvironment": "production-8675309",
   "rds_db_name": "wordpress",
   "rds_engine": "mysql",
-  "rds_instance_size": "db.t2.small",
+  "rds_instance_size": "db.t2.large",
   "rds_multi_az": "false",
   "rds_storage_size": "10",
   "rds_version": "5.6.37",
