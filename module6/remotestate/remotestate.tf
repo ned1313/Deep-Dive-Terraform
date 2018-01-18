@@ -175,6 +175,25 @@ resource "aws_iam_group_membership" "add-rdsadmin" {
   group = "${aws_iam_group.rdsadmin.name}"
 }
 
+resource "local_file" "aws_keys" {
+  content = <<EOF
+[default]
+aws_access_key_id = ${var.aws_access_key}
+aws_secret_access_key = ${var.aws_secret_key}
+
+[application]
+aws_access_key_id = ${aws_iam_access_key.sallysue.id}
+aws_secret_access_key = ${aws_iam_access_key.sallysue.secret}
+
+[networking]
+aws_access_key_id = ${aws_iam_access_key.marymoe.id}
+aws_secret_access_key = ${aws_iam_access_key.marymoe.secret}
+
+EOF
+
+  filename = "${var.user_home_path}/.aws/credentials"
+}
+
 ##################################################################################
 # OUTPUT
 ##################################################################################

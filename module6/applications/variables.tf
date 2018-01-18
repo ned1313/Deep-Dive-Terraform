@@ -7,8 +7,7 @@ variable "network_remote_state_bucket" {
   default = "ddt-networking"
 }
 
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
+variable "aws_profile" {}
 
 #Web front end variables
 variable "key_name" {

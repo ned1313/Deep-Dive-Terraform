@@ -1,11 +1,6 @@
 ##################################################################################
-# VARIABLES
+# OUTPUT
 ##################################################################################
-
-variable "aws_profile" {}
-
-variable "projectcode" {
-  default = "8675309"
+output "elb_dns_name" {
+  value = "${aws_elb.webapp_elb.dns_name}"
 }
-
-variable "url" {}

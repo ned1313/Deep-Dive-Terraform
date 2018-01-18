@@ -5,9 +5,8 @@
 ##################################################################################
 
 provider "aws" {
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
-  region     = "us-west-2"
+  profile = "${var.aws_profile}"
+  region  = "us-west-2"
 }
 
 ##################################################################################
@@ -19,8 +18,8 @@ data "template_file" "userdata" {
   vars {
     wp_db_hostname   = "${aws_db_instance.rds.endpoint}"
     wp_db_name = "${terraform.workspace}${data.external.configuration.result.rds_db_name}"
-    wp_db_user            = "${var.wp_db_user}"
-    wp_db_password = "${var.wp_db_password}"
+    wp_db_user            = "${var.rds_username}"
+    wp_db_password = "${var.rds_password}"
     playbook_repository = "${var.playbook_repository}"
   }
 }
