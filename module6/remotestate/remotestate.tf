@@ -17,6 +17,8 @@ variable "aws_dynamodb_table" {
   default = "ddt-tfstatelock"
 }
 
+variable "user_home_path" {}
+
 ##################################################################################
 # PROVIDERS
 ##################################################################################
@@ -182,12 +184,12 @@ aws_access_key_id = ${var.aws_access_key}
 aws_secret_access_key = ${var.aws_secret_key}
 
 [application]
-aws_access_key_id = ${aws_iam_access_key.sallysue.id}
-aws_secret_access_key = ${aws_iam_access_key.sallysue.secret}
+aws_access_key_id = ${aws_iam_access_key.application.id}
+aws_secret_access_key = ${aws_iam_access_key.application.secret}
 
 [networking]
-aws_access_key_id = ${aws_iam_access_key.marymoe.id}
-aws_secret_access_key = ${aws_iam_access_key.marymoe.secret}
+aws_access_key_id = ${aws_iam_access_key.networking.id}
+aws_secret_access_key = ${aws_iam_access_key.networking.secret}
 
 EOF
 
