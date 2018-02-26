@@ -5,13 +5,13 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
 variable "aws_networking_bucket" {
-    default = "ddt-networking"
+    default = "ddt-networking-nb"
 }
 variable "aws_application_bucket" {
-    default = "ddt-application"
+    default = "ddt-application-nb"
 }
 variable "aws_dynamodb_table" {
-    default = "ddt-tfstatelock"
+    default = "ddt-tfstatelock-nb"
 }
 variable "user_home_path" {}
 
@@ -23,10 +23,6 @@ provider "aws" {
   access_key = "${var.aws_access_key}"
   secret_key = "${var.aws_secret_key}"
   region     = "us-west-2"
-}
-
-data "aws_iam_group" "ec2admin" {
-    group_name = "EC2Admin"
 }
 
 ##################################################################################
@@ -121,6 +117,15 @@ resource "aws_s3_bucket" "ddtapp" {
 EOF
 }
 
+resource "aws_iam_group" "ec2admin" {
+  name = "EC2Admin"
+}
+
+resource "aws_iam_group_policy_attachment" "ec2admin-attach" {
+  group      = "${aws_iam_group.ec2admin.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
+
 resource "aws_iam_user" "sallysue" {
   name = "sallysue"
 }
@@ -191,14 +196,14 @@ resource "aws_iam_access_key" "sallysue" {
     user = "${aws_iam_user.sallysue.name}"
 }
 
-resource "aws_iam_group_membership" "addsally" {
-    name = "add-sally"
+resource "aws_iam_group_membership" "add-ec2admin" {
+  name = "add-ec2admin"
 
-    users = [
-        "${aws_iam_user.sallysue.name}"
-    ]
+  users = [
+    "${aws_iam_user.sallysue.name}",
+  ]
 
-    group = "EC2Admin"
+  group = "${aws_iam_group.ec2admin.name}"
 }
 
 resource "local_file" "aws_keys" {
