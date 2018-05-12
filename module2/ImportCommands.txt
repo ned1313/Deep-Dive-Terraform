@@ -1,5 +1,5 @@
 #Use the values output by the JuniorAdminIssue.ps1 script
-
+# This is created by karthik in abc branch
 terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_eip.nat[2] 
 terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_nat_gateway.this[2] 
 terraform import --var-file="..\..\terraform.tfvars" module.vpc.aws_route_table.private[2] 
