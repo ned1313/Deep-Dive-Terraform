@@ -25,9 +25,7 @@ data "aws_iam_group" "ec2admin" {
   group_name = "EC2Admin"
 }
 
-data "aws_region" "current" {
-  current = true
-}
+data "aws_region" "current" {}
 
 ##################################################################################
 # RESOURCES
