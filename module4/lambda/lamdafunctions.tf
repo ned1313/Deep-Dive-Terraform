@@ -101,7 +101,7 @@ resource "aws_lambda_function" "data_source_ddb" {
   function_name = "tdd_ddb_query"
   role          = "${aws_iam_role.iam_for_lambda.arn}"
   handler       = "index.handler"
-  runtime       = "nodejs6.10"
+  runtime       = "nodejs10.x"
 }
 
 resource "aws_api_gateway_rest_api" "tddapi" {

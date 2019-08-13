@@ -1,0 +1,7 @@
+aws_access_key = ""
+
+aws_secret_key = ""
+
+accountId = ""
+
+user_home_path = "full_path/to_your/home_directory"
