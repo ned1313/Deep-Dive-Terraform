@@ -2,8 +2,14 @@
 # VARIABLES
 ##################################################################################
 
+#AWS variables
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
+variable "region" {
+  default = "us-east-1"
+}
+
+#Bucket variables
 variable "aws_networking_bucket" {
     default = "ddt-networking"
 }
@@ -13,6 +19,12 @@ variable "aws_application_bucket" {
 variable "aws_dynamodb_table" {
     default = "ddt-tfstatelock"
 }
+
+#Your home holder path. 
+# Windows - C:\\Users\\USERNAME
+# Linux - /home/USERNAME
+# Mac - /Users/USERNAME
+
 variable "user_home_path" {}
 
 ##################################################################################
@@ -20,16 +32,29 @@ variable "user_home_path" {}
 ##################################################################################
 
 provider "aws" {
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
-  region     = "us-west-2"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+  region     = var.region
 }
 
 ##################################################################################
 # RESOURCES
 ##################################################################################
+
+resource "random_integer" "rand" {
+  min = 10000
+  max = 99999
+}
+
+locals {
+
+    dynamodb_table_name = "${var.aws_dynamodb_table}-${random_integer.rand.result}"
+    s3_net_bucket_name = "${var.aws_networking_bucket}-${random_integer.rand.result}"
+    s3_app_bucket_name = "${var.aws_application_bucket}-${random_integer.rand.result}"
+}
+
 resource "aws_dynamodb_table" "terraform_statelock" {
-  name           = "${var.aws_dynamodb_table}"
+  name           = local.dynamodb_table_name
   read_capacity  = 20
   write_capacity = 20
   hash_key       = "LockID"
@@ -41,7 +66,7 @@ resource "aws_dynamodb_table" "terraform_statelock" {
 }
 
 resource "aws_s3_bucket" "ddtnet" {
-  bucket = "${var.aws_networking_bucket}"
+  bucket = local.s3_net_bucket_name
   acl    = "private"
   force_destroy = true
   
@@ -60,7 +85,7 @@ resource "aws_s3_bucket" "ddtnet" {
                 "AWS": "${aws_iam_user.sallysue.arn}"
             },
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::${var.aws_networking_bucket}/*"
+            "Resource": "arn:aws:s3:::${local.s3_net_bucket_name}/*"
         },
         {
             "Sid": "",
@@ -70,8 +95,8 @@ resource "aws_s3_bucket" "ddtnet" {
             },
             "Action": "s3:*",
             "Resource": [
-                "arn:aws:s3:::${var.aws_networking_bucket}",
-                "arn:aws:s3:::${var.aws_networking_bucket}/*"
+                "arn:aws:s3:::${local.s3_net_bucket_name}",
+                "arn:aws:s3:::${local.s3_net_bucket_name}/*"
             ]
         }
     ]
@@ -80,7 +105,7 @@ EOF
 }
 
 resource "aws_s3_bucket" "ddtapp" {
-  bucket = "${var.aws_application_bucket}"
+  bucket = local.s3_app_bucket_name
   acl    = "private"
   force_destroy = true
 
@@ -98,7 +123,7 @@ resource "aws_s3_bucket" "ddtapp" {
                 "AWS": "${aws_iam_user.marymoe.arn}"
             },
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::${var.aws_application_bucket}/*"
+            "Resource": "arn:aws:s3:::${local.s3_app_bucket_name}/*"
         },
         {
             "Sid": "",
@@ -108,8 +133,8 @@ resource "aws_s3_bucket" "ddtapp" {
             },
             "Action": "s3:*",
             "Resource": [
-                "arn:aws:s3:::${var.aws_application_bucket}",
-                "arn:aws:s3:::${var.aws_application_bucket}/*"
+                "arn:aws:s3:::${local.s3_app_bucket_name}",
+                "arn:aws:s3:::${local.s3_app_bucket_name}/*"
             ]
         }
     ]
@@ -122,7 +147,7 @@ resource "aws_iam_group" "ec2admin" {
 }
 
 resource "aws_iam_group_policy_attachment" "ec2admin-attach" {
-  group      = "${aws_iam_group.ec2admin.name}"
+  group      = aws_iam_group.ec2admin.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
 
@@ -132,7 +157,7 @@ resource "aws_iam_user" "sallysue" {
 
 resource "aws_iam_user_policy" "sallysue_rw" {
     name = "sallysue"
-    user = "${aws_iam_user.sallysue.name}"
+    user = aws_iam_user.sallysue.name
     policy= <<EOF
 {
     "Version": "2012-10-17",
@@ -141,8 +166,8 @@ resource "aws_iam_user_policy" "sallysue_rw" {
             "Effect": "Allow",
             "Action": "s3:*",
             "Resource": [
-                "arn:aws:s3:::${var.aws_application_bucket}",
-                "arn:aws:s3:::${var.aws_application_bucket}/*"
+                "arn:aws:s3:::${local.s3_app_bucket_name}",
+                "arn:aws:s3:::${local.s3_app_bucket_name}/*"
             ]
         },
                 {
@@ -162,12 +187,12 @@ resource "aws_iam_user" "marymoe" {
 }
 
 resource "aws_iam_access_key" "marymoe" {
-    user = "${aws_iam_user.marymoe.name}"
+    user = aws_iam_user.marymoe.name
 }
 
 resource "aws_iam_user_policy" "marymoe_rw" {
     name = "marymoe"
-    user = "${aws_iam_user.marymoe.name}"
+    user = aws_iam_user.marymoe.name
    policy= <<EOF
 {
     "Version": "2012-10-17",
@@ -176,8 +201,8 @@ resource "aws_iam_user_policy" "marymoe_rw" {
             "Effect": "Allow",
             "Action": "s3:*",
             "Resource": [
-                "arn:aws:s3:::${var.aws_networking_bucket}",
-                "arn:aws:s3:::${var.aws_networking_bucket}/*"
+                "arn:aws:s3:::${local.s3_net_bucket_name}",
+                "arn:aws:s3:::${local.s3_net_bucket_name}/*"
             ]
         },
                 {
@@ -193,17 +218,17 @@ EOF
 }
 
 resource "aws_iam_access_key" "sallysue" {
-    user = "${aws_iam_user.sallysue.name}"
+    user = aws_iam_user.sallysue.name
 }
 
 resource "aws_iam_group_membership" "add-ec2admin" {
   name = "add-ec2admin"
 
   users = [
-    "${aws_iam_user.sallysue.name}",
+    aws_iam_user.sallysue.name,
   ]
 
-  group = "${aws_iam_group.ec2admin.name}"
+  group = aws_iam_group.ec2admin.name
 }
 
 resource "local_file" "aws_keys" {
@@ -229,18 +254,26 @@ EOF
 # OUTPUT
 ##################################################################################
 
-output "sally-access-key" {
-    value = "${aws_iam_access_key.sallysue.id}"
+output "1-sally-access-key" {
+    value = aws_iam_access_key.sallysue.id
 }
 
-output "sally-secret-key" {
-    value = "${aws_iam_access_key.sallysue.secret}"
+output "2-sally-secret-key" {
+    value = aws_iam_access_key.sallysue.secret
 }
 
-output "mary-access-key" {
-    value = "${aws_iam_access_key.marymoe.id}"
+output "3-mary-access-key" {
+    value = aws_iam_access_key.marymoe.id
 }
 
-output "mary-secret-key" {
-    value = "${aws_iam_access_key.marymoe.secret}"
+output "4-mary-secret-key" {
+    value = aws_iam_access_key.marymoe.secret
+}
+
+output "5-net-bucket-name" {
+    value = local.s3_net_bucket_name
+}
+
+output "6-app-bucket-name" {
+    value = local.s3_app_bucket_name
 }
