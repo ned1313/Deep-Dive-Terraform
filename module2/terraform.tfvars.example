@@ -2,6 +2,16 @@ aws_access_key = ""
 
 aws_secret_key = ""
 
-key_name = "name_of_existing_key_pair"
+private_subnets = ["10.0.1.0/24", "10.0.3.0/24"]
 
-private_key_path = "private_key_path\private_key_file.pem"
+public_subnets = ["10.0.0.0/24", "10.0.2.0/24"]
+
+subnet_count = 2
+
+# Use these for the import update
+
+#private_subnets = ["10.0.1.0/24", "10.0.3.0/24", "10.0.5.0/24"]
+
+#public_subnets = ["10.0.0.0/24", "10.0.2.0/24", "10.0.4.0/24"]
+
+#subnet_count = 3

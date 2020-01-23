@@ -3,9 +3,9 @@
 ##################################################################################
 
 provider "aws" {
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
-  region     = "us-west-2"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+  region     = var.region
 }
 
 ##################################################################################
@@ -23,17 +23,17 @@ module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   name = "Terraform"
 
-  cidr = "10.0.0.0/16"
-  azs = "${slice(data.aws_availability_zones.available.names,0,var.subnet_count)}"
-  private_subnets = ["10.0.1.0/24", "10.0.3.0/24"]
-  public_subnets = ["10.0.0.0/24", "10.0.2.0/24"]
+  cidr = var.cidr_block
+  azs = slice(data.aws_availability_zones.available.names,0,var.subnet_count)
+  private_subnets = var.private_subnets
+  public_subnets = var.public_subnets
 
   enable_nat_gateway = true
 
   create_database_subnet_group = false
 
   
-  tags {
+  tags = {
   }
 }
 
