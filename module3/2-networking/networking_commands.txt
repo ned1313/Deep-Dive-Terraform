@@ -1,0 +1,51 @@
+### STATE EXAMPLE
+
+# Initialize the environment using the networking bucket and Mary's keys
+# Change TABLE_NAME and NET_BUCKET_NAME to the values from the prerequisite output
+terraform init --backend-config="dynamodb_table=TABLE_NAME" --backend-config="bucket=BUCKET_NAME" --backend-config="profile=marymoe"
+
+terraform plan -out net.tfplan
+
+# Now change the nat gateway setting to true and open a second terminal window
+
+# In the second terminal window go to the 3-networking2 folder
+
+# Run the same terraform init command from above
+
+# Go back to terminal 1 and run terraform plan to update the nat gateway value
+
+terraform plan -out net.tfplan
+
+# Run the terraform apply command in terminal 1
+
+terraform apply "net.tfplan"
+
+# While that's running, switch to terminal 2 and run a terraform plan
+
+terraform plan -out net2.tfplan
+
+# You should get an error acquiring locking state
+
+# Wait until the apply finished in terminal 1 and then re-run plan in terminal 2
+
+# This should be successful, close terminal 2
+
+### WORKSPACES
+
+# Create a development WORKSPACES
+
+terraform workspace new development
+
+# Generate a plan for the development workspace and apply it
+
+terraform plan -out dev-net2.tfplan
+
+terraform apply "dev-net.tfplan"
+
+# destroy the development resources
+
+terraform destroy
+
+# Switch back to the default workspace and delete the development one
+
+

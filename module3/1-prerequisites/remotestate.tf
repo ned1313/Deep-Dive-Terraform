@@ -254,26 +254,30 @@ EOF
 # OUTPUT
 ##################################################################################
 
-output "1-sally-access-key" {
+output "A-sally-access-key" {
     value = aws_iam_access_key.sallysue.id
 }
 
-output "2-sally-secret-key" {
+output "B-sally-secret-key" {
     value = aws_iam_access_key.sallysue.secret
 }
 
-output "3-mary-access-key" {
+output "C-mary-access-key" {
     value = aws_iam_access_key.marymoe.id
 }
 
-output "4-mary-secret-key" {
+output "D-mary-secret-key" {
     value = aws_iam_access_key.marymoe.secret
 }
 
-output "5-net-bucket-name" {
+output "E-net-bucket-name" {
     value = local.s3_net_bucket_name
 }
 
-output "6-app-bucket-name" {
+output "F-app-bucket-name" {
     value = local.s3_app_bucket_name
+}
+
+output "G-dynamodb-table-name" {
+    value = local.dynamodb_table_name
 }
