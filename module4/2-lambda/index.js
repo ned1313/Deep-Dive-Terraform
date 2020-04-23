@@ -1,17 +1,16 @@
 // Load the SDK for JavaScript
 var AWS = require('aws-sdk');
-// Set the region 
-AWS.config.update({region: 'us-west-2'});
-var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
 exports.handler = (event, context, callback) => {
-    // TODO implement
+    //set the region
+        AWS.config.update({region: event.headers["region"]});
+        var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
         var params = {
             ExpressionAttributeValues: {
                 ':p': {S: event.headers["querytext"]},
             },
             KeyConditionExpression: 'ProjectEnvironment = :p',
-            TableName: 'ddt-datasource'
+            TableName: event.headers["tablename"]
         };
 
     ddb.query(params, function(err, data) {

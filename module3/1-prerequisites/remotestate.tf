@@ -5,6 +5,7 @@
 #AWS variables
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
+
 variable "region" {
   default = "us-east-1"
 }
@@ -32,6 +33,7 @@ variable "user_home_path" {}
 ##################################################################################
 
 provider "aws" {
+  version = "~>2.0"
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
   region     = var.region

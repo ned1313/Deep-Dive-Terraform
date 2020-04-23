@@ -1,0 +1,7 @@
+terraform init
+terraform validate
+terraform plan -out prereq.tfplan
+terraform apply "prereq.tfplan"
+
+# Do not run until after completing the other exercises in the module
+terraform destroy 
