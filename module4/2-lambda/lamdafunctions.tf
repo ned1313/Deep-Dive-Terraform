@@ -167,3 +167,7 @@ resource "aws_api_gateway_deployment" "ddtdeployment" {
 output "invoke-url" {
   value = "https://${aws_api_gateway_deployment.ddtdeployment.rest_api_id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${aws_api_gateway_deployment.ddtdeployment.stage_name}/${aws_lambda_function.data_source_ddb.function_name}"
 }
+
+output "datasource-dynamodb" {
+  value = aws_dynamodb_table.terraform_datasource.name
+}

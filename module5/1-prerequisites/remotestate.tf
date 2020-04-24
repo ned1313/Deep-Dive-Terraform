@@ -5,6 +5,10 @@
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
 
+variable "region" {
+  default = "us-east-1"
+}
+
 variable "aws_networking_bucket" {
   default = "ddt-networking"
 }
@@ -23,56 +27,69 @@ variable "aws_dynamodb_table" {
 
 provider "aws" {
   version = "~>2.0"
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
   region     = var.region
 }
 
 ##################################################################################
 # RESOURCES
 ##################################################################################
-data "template_file" "application_bucket_policy" {
-  template = "${file("templates/bucket_policy.tpl")}"
 
-  vars {
-    read_only_user_arn   = "${aws_iam_user.networking.arn}"
-    full_access_user_arn = "${aws_iam_user.application.arn}"
-    s3_bucket            = "${var.aws_application_bucket}"
+resource "random_integer" "rand" {
+  min = 10000
+  max = 99999
+}
+
+locals {
+
+  dynamodb_table_name = "${var.aws_dynamodb_table}-${random_integer.rand.result}"
+  s3_net_bucket_name  = "${var.aws_networking_bucket}-${random_integer.rand.result}"
+  s3_app_bucket_name  = "${var.aws_application_bucket}-${random_integer.rand.result}"
+}
+
+data "template_file" "application_bucket_policy" {
+  template = file("templates/bucket_policy.tpl")
+
+  vars = {
+    read_only_user_arn   = aws_iam_user.networking.arn
+    full_access_user_arn = aws_iam_user.application.arn
+    s3_bucket            = local.s3_app_bucket_name
   }
 }
 
 data "template_file" "network_bucket_policy" {
-  template = "${file("templates/bucket_policy.tpl")}"
+  template = file("templates/bucket_policy.tpl")
 
-  vars {
-    read_only_user_arn   = "${aws_iam_user.application.arn}"
-    full_access_user_arn = "${aws_iam_user.networking.arn}"
-    s3_bucket            = "${var.aws_networking_bucket}"
+  vars = {
+    read_only_user_arn   = aws_iam_user.application.arn
+    full_access_user_arn = aws_iam_user.networking.arn
+    s3_bucket            = local.s3_net_bucket_name
   }
 }
 
 data "template_file" "networking_policy" {
-  template = "${file("templates/user_policy.tpl")}"
+  template = file("templates/user_policy.tpl")
 
-  vars {
-    s3_rw_bucket          = "${var.aws_networking_bucket}"
-    s3_ro_bucket          = "${var.aws_application_bucket}"
-    dynamodb_table_arn = "${aws_dynamodb_table.terraform_statelock.arn}"
+  vars = {
+    s3_rw_bucket          = local.s3_net_bucket_name
+    s3_ro_bucket          = local.s3_app_bucket_name
+    dynamodb_table_arn = aws_dynamodb_table.terraform_statelock.arn
   }
 }
 
 data "template_file" "application_policy" {
-  template = "${file("templates/user_policy.tpl")}"
+  template = file("templates/user_policy.tpl")
 
-  vars {
-    s3_rw_bucket          = "${var.aws_application_bucket}"
-    s3_ro_bucket          = "${var.aws_networking_bucket}"
-    dynamodb_table_arn = "${aws_dynamodb_table.terraform_statelock.arn}"
+  vars = {
+    s3_rw_bucket          = local.s3_app_bucket_name
+    s3_ro_bucket          = local.s3_net_bucket_name
+    dynamodb_table_arn = aws_dynamodb_table.terraform_statelock.arn
   }
 }
 
 resource "aws_dynamodb_table" "terraform_statelock" {
-  name           = "${var.aws_dynamodb_table}"
+  name           = var.aws_dynamodb_table
   read_capacity  = 20
   write_capacity = 20
   hash_key       = "LockID"
@@ -84,7 +101,7 @@ resource "aws_dynamodb_table" "terraform_statelock" {
 }
 
 resource "aws_s3_bucket" "ddtnet" {
-  bucket        = "${var.aws_networking_bucket}"
+  bucket        = local.s3_net_bucket_name
   acl           = "private"
   force_destroy = true
 
@@ -92,11 +109,11 @@ resource "aws_s3_bucket" "ddtnet" {
     enabled = true
   }
 
-  policy = "${data.template_file.network_bucket_policy.rendered}"
+  policy = data.template_file.network_bucket_policy.rendered
 }
 
 resource "aws_s3_bucket" "ddtapp" {
-  bucket        = "${var.aws_application_bucket}"
+  bucket        = local.s3_app_bucket_name
   acl           = "private"
   force_destroy = true
 
@@ -104,7 +121,7 @@ resource "aws_s3_bucket" "ddtapp" {
     enabled = true
   }
 
-  policy = "${data.template_file.application_bucket_policy.rendered}"
+  policy = data.template_file.application_bucket_policy.rendered
 }
 
 resource "aws_iam_user" "application" {
@@ -113,9 +130,9 @@ resource "aws_iam_user" "application" {
 
 resource "aws_iam_user_policy" "application_rw" {
   name = "application"
-  user = "${aws_iam_user.application.name}"
+  user = aws_iam_user.application.name
 
-  policy = "${data.template_file.application_policy.rendered}"
+  policy = data.template_file.application_policy.rendered
 }
 
 resource "aws_iam_user" "networking" {
@@ -123,18 +140,18 @@ resource "aws_iam_user" "networking" {
 }
 
 resource "aws_iam_access_key" "networking" {
-  user = "${aws_iam_user.networking.name}"
+  user = aws_iam_user.networking.name
 }
 
 resource "aws_iam_user_policy" "networking_rw" {
   name = "networking"
-  user = "${aws_iam_user.networking.name}"
+  user = aws_iam_user.networking.name
 
-  policy = "${data.template_file.networking_policy.rendered}"
+  policy = data.template_file.networking_policy.rendered
 }
 
 resource "aws_iam_access_key" "application" {
-  user = "${aws_iam_user.application.name}"
+  user = aws_iam_user.application.name
 }
 
 resource "aws_iam_group" "rdsadmin" {
@@ -142,7 +159,7 @@ resource "aws_iam_group" "rdsadmin" {
 }
 
 resource "aws_iam_group_policy_attachment" "rdsadmin-attach" {
-  group      = "${aws_iam_group.rdsadmin.name}"
+  group      = aws_iam_group.rdsadmin.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
 }
 
@@ -151,7 +168,7 @@ resource "aws_iam_group" "ec2admin" {
 }
 
 resource "aws_iam_group_policy_attachment" "ec2admin-attach" {
-  group      = "${aws_iam_group.ec2admin.name}"
+  group      = aws_iam_group.ec2admin.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
 
@@ -159,21 +176,21 @@ resource "aws_iam_group_membership" "add-ec2admin" {
   name = "add-ec2admin"
 
   users = [
-    "${aws_iam_user.application.name}",
-    "${aws_iam_user.networking.name}"
+    aws_iam_user.application.name,
+    aws_iam_user.networking.name
   ]
 
-  group = "${aws_iam_group.ec2admin.name}"
+  group = aws_iam_group.ec2admin.name
 }
 
 resource "aws_iam_group_membership" "add-rdsadmin" {
   name = "add-rdsadmin"
 
   users = [
-    "${aws_iam_user.application.name}"
+    aws_iam_user.application.name
   ]
 
-  group = "${aws_iam_group.rdsadmin.name}"
+  group = aws_iam_group.rdsadmin.name
 }
 
 ##################################################################################
@@ -181,17 +198,25 @@ resource "aws_iam_group_membership" "add-rdsadmin" {
 ##################################################################################
 
 output "application_access_key" {
-    value = "${aws_iam_access_key.application.id}"
+    value = aws_iam_access_key.application.id
 }
 
 output "application_secret_key" {
-    value = "${aws_iam_access_key.application.secret}"
+    value = aws_iam_access_key.application.secret
 }
 
 output "networking_access_key" {
-    value = "${aws_iam_access_key.networking.id}"
+    value = aws_iam_access_key.networking.id
 }
 
 output "networking_secret_key" {
-    value = "${aws_iam_access_key.networking.secret}"
+    value = aws_iam_access_key.networking.secret
+}
+
+output "networking_s3_bucket" {
+  value = aws_s3_bucket.ddtnet.bucket
+}
+
+output "application_s3_bucket" {
+  value = aws_s3_bucket.ddtapp.bucket
 }

@@ -223,3 +223,10 @@ EOF
 # OUTPUT
 ##################################################################################
 
+output "networking_s3_bucket" {
+  value = aws_s3_bucket.ddtnet.bucket
+}
+
+output "application_s3_bucket" {
+  value = aws_s3_bucket.ddtapp.bucket
+}
