@@ -16,6 +16,6 @@ echo $URL
 echo $TABLENAME
 
 # Placeholder for whatever data-fetching logic your script implements
-curl --header "querytext: $WORKSPACE-$PROJECTCODE" \ 
-  --header "region: $REGION" \ 
+curl --header "querytext: $WORKSPACE-$PROJECTCODE" \
+  --header "region: $REGION" \
   --header "tablename: $TABLENAME" $URL
