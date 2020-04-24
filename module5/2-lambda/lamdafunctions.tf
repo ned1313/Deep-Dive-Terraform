@@ -18,7 +18,7 @@ variable "region" {
 ##################################################################################
 
 provider "aws" {
-  version = "~>2.0"
+  version    = "~>2.0"
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
   region     = var.region
@@ -166,7 +166,7 @@ resource "aws_api_gateway_deployment" "ddtdeployment" {
 }
 
 output "invoke-url" {
-    value = "https://${aws_api_gateway_deployment.ddtdeployment.rest_api_id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${aws_api_gateway_deployment.ddtdeployment.stage_name}/${aws_lambda_function.data_source_ddb.function_name}"
+  value = "https://${aws_api_gateway_deployment.ddtdeployment.rest_api_id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${aws_api_gateway_deployment.ddtdeployment.stage_name}/${aws_lambda_function.data_source_ddb.function_name}"
 }
 
 output "datasource-dynamodb" {

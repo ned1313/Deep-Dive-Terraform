@@ -69,3 +69,19 @@ exit
 # First build will fail, but now the parameters will be Available
 
 # Run a new build WITH parameters
+
+# When build is successful create a new pipeline for the application stack
+
+# Create a new item
+# Name: app-deploy
+# Type pipeline
+# Select poll SCM
+# Definition: Pipeline script from SCM
+# SCM: Git
+# Repo URL: YOUR_REPO_URL or https://github.com/ned1313/Deep-Dive-Terraform.git
+# Script path: module5/5-applications/Jenkinsfile
+# Uncheck lightweight checkout
+
+# First build will fail, but now the parameters will be Available
+
+# Run a new build WITH parameters

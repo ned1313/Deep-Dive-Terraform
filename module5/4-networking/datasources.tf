@@ -38,7 +38,7 @@ data "external" "configuration" {
     workspace   = terraform.workspace
     projectcode = var.projectcode
     url         = var.url
-    region = var.region
-    tablename = var.tablename
+    region      = var.region
+    tablename   = var.tablename
   }
 }

@@ -1,4 +1,4 @@
-#Remove State variables
+#Remote State variables
 variable "network_remote_state_key" {
   default = "networking.state"
 }

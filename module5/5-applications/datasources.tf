@@ -14,20 +14,21 @@ data "terraform_remote_state" "networking" {
   backend = "s3"
 
   config {
-    key            = "${terraform.workspace == "default" ? var.network_remote_state_key : local.workspace_key}"
-    bucket         = "${var.network_remote_state_bucket}"
-    region         = "us-west-2"
-    access_key = "${var.aws_access_key}"
-    secret_key = "${var.aws_secret_key}"
+    key        = terraform.workspace == "default" ? var.network_remote_state_key : local.workspace_key
+    bucket     = var.network_remote_state_bucket
+    region     = var.region
+    access_key = var.aws_access_key
+    secret_key = var.aws_secret_key
   }
 }
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "aws_linux" {
   most_recent = true
+  owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server*"]
+    values = ["amzn-ami-hvm-20*"]
   }
 
   filter {
@@ -47,12 +48,14 @@ data "aws_ami" "ubuntu" {
 }
 
 data "external" "configuration" {
-  program = ["bash", "../scripts/getenvironment.sh"]
+  program = ["bash", "../3-scripts/getenvironment.sh"]
 
   # Optional request headers
   query = {
-    workspace   = "${terraform.workspace}"
-    projectcode = "${var.projectcode}"
-    url         = "${var.url}"
+    workspace   = terraform.workspace
+    projectcode = var.projectcode
+    url         = var.url
+    region      = var.region
+    tablename   = var.tablename
   }
 }

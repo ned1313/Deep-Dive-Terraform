@@ -3,6 +3,6 @@
 ##################################################################################
 terraform {
   backend "s3" {
-    key            = "networking.state"
+    key = "networking.state"
   }
 }

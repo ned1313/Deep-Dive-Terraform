@@ -26,7 +26,7 @@ variable "aws_dynamodb_table" {
 ##################################################################################
 
 provider "aws" {
-  version = "~>2.0"
+  version    = "~>2.0"
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
   region     = var.region
@@ -72,8 +72,8 @@ data "template_file" "networking_policy" {
   template = file("templates/user_policy.tpl")
 
   vars = {
-    s3_rw_bucket          = local.s3_net_bucket_name
-    s3_ro_bucket          = local.s3_app_bucket_name
+    s3_rw_bucket       = local.s3_net_bucket_name
+    s3_ro_bucket       = local.s3_app_bucket_name
     dynamodb_table_arn = aws_dynamodb_table.terraform_statelock.arn
   }
 }
@@ -82,8 +82,8 @@ data "template_file" "application_policy" {
   template = file("templates/user_policy.tpl")
 
   vars = {
-    s3_rw_bucket          = local.s3_app_bucket_name
-    s3_ro_bucket          = local.s3_net_bucket_name
+    s3_rw_bucket       = local.s3_app_bucket_name
+    s3_ro_bucket       = local.s3_net_bucket_name
     dynamodb_table_arn = aws_dynamodb_table.terraform_statelock.arn
   }
 }
@@ -198,19 +198,19 @@ resource "aws_iam_group_membership" "add-rdsadmin" {
 ##################################################################################
 
 output "application_access_key" {
-    value = aws_iam_access_key.application.id
+  value = aws_iam_access_key.application.id
 }
 
 output "application_secret_key" {
-    value = aws_iam_access_key.application.secret
+  value = aws_iam_access_key.application.secret
 }
 
 output "networking_access_key" {
-    value = aws_iam_access_key.networking.id
+  value = aws_iam_access_key.networking.id
 }
 
 output "networking_secret_key" {
-    value = aws_iam_access_key.networking.secret
+  value = aws_iam_access_key.networking.secret
 }
 
 output "networking_s3_bucket" {
