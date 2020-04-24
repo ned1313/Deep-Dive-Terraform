@@ -65,7 +65,10 @@ pipeline {
                         apply = false
                         dir('module5/5-applications'){
                             sh "terraform destroy -var 'aws_access_key=$APPLICATION_ACCESS_KEY' \
-                             -var 'aws_secret_key=$APPLICATION_SECRET_KEY' -var 'url=${params.LAMBDA_URL}' -force"
+                             -var 'aws_secret_key=$APPLICATION_SECRET_KEY' -var 'url=${params.LAMBDA_URL}' \
+                             -var 'region=${params.REGION}' -var 'tablename=${params.DATASOURCE}' \
+                             -var 'key_name=${params.KEYNAME}' \
+                             -var 'network_remote_state_bucket=${params.NETWORKING_BUCKET}' \ -auto-approve"
                         }
                          currentBuild.result = 'UNSTABLE'
                     }

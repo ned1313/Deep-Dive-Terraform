@@ -84,4 +84,10 @@ exit
 
 # First build will fail, but now the parameters will be Available
 
-# Run a new build WITH parameters
+# Run a new build WITH parameters (if you get a weird error about state migration do the following)
+docker exec -it -u root jenkins /bin/bash
+cd /var/jenkins_home/workspace/app-deploy/module5/5-applications
+rm -Rf .terraform/
+
+# Then run the build again
+
