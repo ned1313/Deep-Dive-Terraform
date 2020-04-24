@@ -31,14 +31,14 @@ data "template_file" "private_cidrsubnet" {
 }
 
 data "external" "configuration" {
-  program = ["bash", "../3-scripts/getenvironment.sh"]
+  program = ["powershell.exe", "../3-scripts/getenvironment.ps1"]
 
   # Optional request headers
   query = {
     workspace   = terraform.workspace
     projectcode = var.projectcode
     url         = var.url
-    region      = var.region
-    tablename   = var.tablename
+    region = var.region
+    tablename = var.tablename
   }
 }

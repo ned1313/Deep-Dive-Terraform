@@ -1,0 +1,5 @@
+aws_profile = "networking"
+
+tablename = "DATA_SOURCE_TABLE_NAME"
+
+url = "URL_FROM_THE_LAMBDA_OUTPUT"

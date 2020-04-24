@@ -1,10 +1,10 @@
 locals {
   common_tags = {
-    environment      = "${data.external.configuration.result.environment}"
-    billing_code     = "${data.external.configuration.result.billing_code}"
-    project_code     = "${data.external.configuration.result.project_code}"
-    network_lead     = "${data.external.configuration.result.network_lead}"
-    application_lead = "${data.external.configuration.result.application_lead}"
+    environment      = data.external.configuration.result.environment
+    billing_code     = data.external.configuration.result.billing_code
+    project_code     = data.external.configuration.result.project_code
+    network_lead     = data.external.configuration.result.network_lead
+    application_lead = data.external.configuration.result.application_lead
   }
 
   workspace_key = "env:/${terraform.workspace}/${var.network_remote_state_key}"
@@ -13,16 +13,17 @@ locals {
 data "terraform_remote_state" "networking" {
   backend = "s3"
 
-  config {
-    key            = "${terraform.workspace == "default" ? var.network_remote_state_key : local.workspace_key}"
-    bucket         = "${var.network_remote_state_bucket}"
-    region         = "us-west-2"
-    profile = "${var.aws_profile}"
+  config = {
+    key            = terraform.workspace == "default" ? var.network_remote_state_key : local.workspace_key
+    bucket         = var.network_remote_state_bucket
+    region  = var.region
+    profile = var.aws_profile
   }
 }
 
 data "aws_ami" "ubuntu" {
   most_recent = true
+  owners = ["099720109477"]
 
   filter {
     name   = "name"
@@ -46,12 +47,14 @@ data "aws_ami" "ubuntu" {
 }
 
 data "external" "configuration" {
-  program = ["powershell.exe", "../scripts/getenvironment.ps1"]
+  program = ["powershell.exe", "../3-scripts/getenvironment.ps1"]
 
   # Optional request headers
   query = {
-    workspace   = "${terraform.workspace}"
-    projectcode = "${var.projectcode}"
-    url         = "${var.url}"
+    workspace   = terraform.workspace
+    projectcode = var.projectcode
+    url         = var.url
+    region = var.region
+    tablename = var.tablename
   }
 }
