@@ -1,0 +1,93 @@
+# The data in the development and production files needs to go into the dynamodb table
+# You can go in through the AWS Console to do that, or use the AWS CLI
+
+# AWS CLI example
+aws dynamodb list-tables
+
+# Copy the table name into the following command
+aws dynamodb put-item --table-name TABLE_NAME --item file://production-dynamodb.txt
+aws dynamodb put-item --table-name TABLE_NAME --item file://development-dynamodb.txt
+
+# In the AWS Console create an item and select Text from the drop down and tick the
+# DynamoDB JSON check box. Copy and paste the text from the one of the file and save
+# the item. Repeat for the second file.
+
+#Now we can spin up our Jenkins container
+
+#Open an admin PowerShell
+docker pull jenkins/jenkins:lts
+docker run -p 8080:8080 -p 50000:50000 -d -v jenkins_home:/var/jenkins_home --name jenkins jenkins/jenkins:lts
+docker logs jenkins
+
+#Copy the admin password
+http://127.0.0.1:8080
+
+# Install suggested plugins
+# Create a user
+# Manage jenkins
+# Manage plugins
+# Search for Terraform in Available and install without restart
+# Back to Manage jenkins
+# Global Tool Configuration
+# Add Terraform
+# Name: terraform 
+# Install automatically
+# Version - latest for linux (amd64)
+# Click Save
+
+# Create a new item
+# Name: net-deploy
+# Type pipeline
+# Select poll SCM
+# Definition: Pipeline script from SCM
+# SCM: Git
+# Repo URL: YOUR_REPO_URL or https://github.com/ned1313/Deep-Dive-Terraform.git
+# Script path: module5/4-networking/Jenkinsfile
+# Uncheck lightweight checkout
+
+# Go to credentials -> global
+# Create a credential of type secret text with ID networking_access_key and the access key as the secret
+# Create a credential of type secret text with ID networking_secret_key and the access secret as the secret
+# Create a credential of type secret text with ID application_access_key and the access key as the secret
+# Create a credential of type secret text with ID application_secret_key and the access secret as the secret
+
+#Run the PowerShell script to get the plugin files
+.\getTerraformPlugin.ps1
+
+#Copy Terraform plugins
+docker ps
+docker cp .\terraform_plugins jenkins:/var/jenkins_home
+
+#Install jq for the external data source script to run properly
+#and install git for SCM control
+docker exec -it -u root jenkins /bin/bash
+apt-get update
+apt-get install jq git -y
+exit
+
+#Now we can run a build of the network pipeline
+# First build will fail, but now the parameters will be Available
+
+# Run a new build WITH parameters
+
+# When build is successful create a new pipeline for the application stack
+
+# Create a new item
+# Name: app-deploy
+# Type pipeline
+# Select poll SCM
+# Definition: Pipeline script from SCM
+# SCM: Git
+# Repo URL: YOUR_REPO_URL or https://github.com/ned1313/Deep-Dive-Terraform.git
+# Script path: module5/5-applications/Jenkinsfile
+# Uncheck lightweight checkout
+
+# First build will fail, but now the parameters will be Available
+
+# Run a new build WITH parameters (if you get a weird error about state migration do the following)
+docker exec -it -u root jenkins /bin/bash
+cd /var/jenkins_home/workspace/app-deploy/module5/5-applications
+rm -Rf .terraform/
+
+# Then run the build again
+

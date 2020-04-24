@@ -1,0 +1,53 @@
+{
+  "application_lead": {
+    "S": "Sally Sue"
+  },
+  "asg_instance_size": {
+    "S": "t2.micro"
+  },
+  "asg_max_size": {
+    "S": "5"
+  },
+  "asg_min_size": {
+    "S": "2"
+  },
+  "billing_code": {
+    "S": "342647563"
+  },
+  "environment": {
+    "S": "development"
+  },
+  "network_lead": {
+    "S": "Mary Moe"
+  },
+  "project_code": {
+    "S": "8675309"
+  },
+  "ProjectEnvironment": {
+    "S": "development-8675309"
+  },
+  "rds_db_name": {
+    "S": "wordpress"
+  },
+  "rds_engine": {
+    "S": "mysql"
+  },
+  "rds_instance_size": {
+    "S": "db.t2.micro"
+  },
+  "rds_multi_az": {
+    "S": "false"
+  },
+  "rds_storage_size": {
+    "S": "5"
+  },
+  "rds_version": {
+    "S": "5.6.37"
+  },
+  "vpc_cidr_range": {
+    "S": "10.0.0.0/16"
+  },
+  "vpc_subnet_count": {
+    "S": "2"
+  }
+}

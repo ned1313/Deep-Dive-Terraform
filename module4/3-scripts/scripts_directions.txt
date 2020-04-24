@@ -1,0 +1,13 @@
+# The data in the development and production files needs to go into the dynamodb table
+# You can go in through the AWS Console to do that, or use the AWS CLI
+
+# AWS CLI example
+aws dynamodb list-tables
+
+# Copy the table name into the following command
+aws dynamodb put-item --table-name TABLE_NAME --item file://production-dynamodb.txt
+aws dynamodb put-item --table-name TABLE_NAME --item file://development-dynamodb.txt
+
+# In the AWS Console create an item and select Text from the drop down and tick the
+# DynamoDB JSON check box. Copy and paste the text from the one of the file and save
+# the item. Repeat for the second file.

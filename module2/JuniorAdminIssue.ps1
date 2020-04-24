@@ -1,5 +1,5 @@
 param(
-    $TerraformVarsFile = "..\..\terraform.tfvars"
+    $TerraformVarsFile = "terraform.tfvars"
 )
 #Get the AWS keys
 $content = Get-Content $TerraformVarsFile
@@ -17,20 +17,26 @@ if(-not (Get-Module AWSPowerShell -ErrorAction SilentlyContinue)){
 
 #Set the AWS Credentials
 Set-AWSCredential -SecretKey $values.aws_secret_key.Replace('"','') `
-     -AccessKey $values.aws_access_key.Replace('"','')
+     -AccessKey $values.aws_access_key.Replace('"','') -StoreAs default
 
 #Set the default region as applicable
-$region = "us-west-2"
+$region = "us-east-1"
 Set-DefaultAWSRegion -Region $region
 
 #Get the VPC and AZs
-$vpc = Get-EC2Vpc
+#This assumes you used Terraform for the name of the VPC
+$vpc = Get-EC2Vpc -Filter @{Name="tag:Name"; Values="Terraform"}
 $azs = Get-EC2AvailabilityZone
 
+#Get the existing subnets
+$subnets = Get-EC2Subnet -Filter @{Name="vpc-id"; Values=$vpc.VpcId} 
+$existingAZs = $subnets | select AvailabilityZoneId -Unique
+$unusedAZs = $azs | ?{$existingAZs.AvailabilityZoneId -notcontains $_.ZoneId} | sort -Property ZoneName
+
 #Create two new subnets in the third AZ
-$privateSubnet = New-EC2Subnet -AvailabilityZone $azs[2].ZoneName `
+$privateSubnet = New-EC2Subnet -AvailabilityZone $unusedAZs[0].ZoneName `
      -CidrBlock "10.0.5.0/24" -VpcId $vpc.VpcId
-$publicSubnet = New-EC2Subnet -AvailabilityZone $azs[2].ZoneName `
+$publicSubnet = New-EC2Subnet -AvailabilityZone $unusedAZs[0].ZoneName `
      -CidrBlock "10.0.4.0/24" -VpcId $vpc.VpcId
 
 #Get the Public route table for all public subnets and associate the new public subnet
@@ -58,9 +64,13 @@ $JimmysResources = @{}
 $JimmysResources.Add("privateSubnet",$privateSubnet.SubnetId)
 $JimmysResources.Add("publicSubnet",$publicSubnet.SubnetId)
 $JimmysResources.Add("privateRouteTable",$privateRouteTable.RouteTableId)
-$JimmysResources.Add("NatGateway",$ngw.NatGateway.NatGatewayId)
-$JimmysResources.Add("ElasticIP",$eip.AllocationId)
+$JimmysResources.Add("natGateway",$ngw.NatGateway.NatGatewayId)
+$JimmysResources.Add("elasticIP",$eip.AllocationId)
+$JimmysResources.Add("natGatewayRoute","$($privateRouteTable.RouteTableId)_0.0.0.0/0")
+$JimmysResources.Add("privateRouteTableAssoc","$($privateSubnet.SubnetId)/$($privateRouteTable.RouteTableId)")
+$JimmysResources.Add("publicRouteTableAssoc","$($publicSubnet.SubnetId)/$($publicRouteTable.RouteTableId)")
 
-Write-Output $JimmysResources
+
+Write-Output ($JimmysResources.GetEnumerator() | sort -Property Name)
 
 

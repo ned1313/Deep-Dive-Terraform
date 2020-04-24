@@ -1,0 +1,15 @@
+### Application deployment
+
+# Initialize the environment using the application bucket and Sally's keys
+# Change TABLE_NAME and APP_BUCKET_NAME to the values from the prerequisite output
+# Change REGION_NAME to your region
+terraform init --backend-config="dynamodb_table=TABLE_NAME" --backend-config="bucket=APP_BUCKET_NAME" --backend-config="profile=application" --backend-config="region=REGION_NAME"
+
+terraform validate
+
+terraform workspace new development
+
+terraform plan -out app.tfplan
+
+terraform apply "app.tfplan"
+

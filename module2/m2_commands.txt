@@ -1,0 +1,20 @@
+terraform init
+terraform validate
+terraform plan -out m2.tfplan
+terraform apply "m2.tfplan"
+
+# Now run the JuniorAdminIssue.ps1 script to generate resources on AWS
+
+# Update your terraform.tfvars file to comment out the current 
+# private_subnets, public_subnets, and subnet_count values and
+# uncomment the updated values
+
+# Run the import commands in ImportCommands.txt
+
+terraform plan -out m2.tfplan
+
+# There should be 5 changes where tags are added
+
+terraform apply "m2.tfplan"
+
+terraform destroy
