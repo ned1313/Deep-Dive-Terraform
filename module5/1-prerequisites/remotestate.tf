@@ -220,3 +220,7 @@ output "networking_s3_bucket" {
 output "application_s3_bucket" {
   value = aws_s3_bucket.ddtapp.bucket
 }
+
+output "dynamodb_statelock" {
+  value = aws_dynamodb_table.terraform_statelock.name
+}
