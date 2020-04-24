@@ -6,7 +6,7 @@ pipeline {
     parameters {
         string(name: 'LAMBDA_URL', defaultValue: '', description: 'URL to the Lamdba function')
         string(name: 'WORKSPACE', defaultValue: 'development', description:'workspace to use in Terraform')
-        string(name: 'DYNAMODB_STATELOCK', defaultValue: '', description:'DynamoDB table for state locking')
+        string(name: 'DYNAMODB_STATELOCK', defaultValue: 'ddt-tfstatelock', description:'DynamoDB table for state locking')
         string(name: 'NETWORKING_BUCKET', defaultValue: '', description:'S3 bucket to use for state locking')
         string(name: 'REGION', defaultValue: 'us-east-1', description:'Region for resources')
         
