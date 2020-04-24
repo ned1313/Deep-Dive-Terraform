@@ -68,7 +68,7 @@ pipeline {
                              -var 'aws_secret_key=$APPLICATION_SECRET_KEY' -var 'url=${params.LAMBDA_URL}' \
                              -var 'region=${params.REGION}' -var 'tablename=${params.DATASOURCE}' \
                              -var 'key_name=${params.KEYNAME}' \
-                             -var 'network_remote_state_bucket=${params.NETWORKING_BUCKET}' \ -auto-approve"
+                             -var 'network_remote_state_bucket=${params.NETWORKING_BUCKET}' -auto-approve"
                         }
                          currentBuild.result = 'UNSTABLE'
                     }
