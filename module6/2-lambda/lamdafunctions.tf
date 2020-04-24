@@ -9,7 +9,9 @@ variable "aws_dynamodb_table" {
   default = "ddt-datasource"
 }
 
-variable "accountId" {}
+variable "region" {
+  default = "us-east-1"
+}
 
 ##################################################################################
 # PROVIDERS
@@ -17,8 +19,8 @@ variable "accountId" {}
 
 provider "aws" {
   version = "~>2.0"
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
   region     = var.region
 }
 
@@ -26,15 +28,26 @@ data "aws_iam_group" "ec2admin" {
   group_name = "EC2Admin"
 }
 
-data "aws_region" "current" {
-  current = true
-}
+data "aws_region" "current" {}
+
+data "aws_caller_identity" "current" {}
 
 ##################################################################################
 # RESOURCES
 ##################################################################################
+
+resource "random_integer" "rand" {
+  min = 10000
+  max = 99999
+}
+
+locals {
+
+  dynamodb_table_name = "${var.aws_dynamodb_table}-${random_integer.rand.result}"
+}
+
 resource "aws_dynamodb_table" "terraform_datasource" {
-  name           = "${var.aws_dynamodb_table}"
+  name           = local.dynamodb_table_name
   read_capacity  = 20
   write_capacity = 20
   hash_key       = "ProjectEnvironment"
@@ -95,14 +108,14 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "dynamodb-access" {
-  role       = "${aws_iam_role.iam_for_lambda.name}"
-  policy_arn = "${aws_iam_policy.dynamodb-access.arn}"
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.dynamodb-access.arn
 }
 
 resource "aws_lambda_function" "data_source_ddb" {
   filename      = "index.zip"
   function_name = "tdd_ddb_query"
-  role          = "${aws_iam_role.iam_for_lambda.arn}"
+  role          = aws_iam_role.iam_for_lambda.arn
   handler       = "index.handler"
   runtime       = "nodejs10.x"
 }
@@ -113,22 +126,22 @@ resource "aws_api_gateway_rest_api" "tddapi" {
 }
 
 resource "aws_api_gateway_resource" "tddresource" {
-  rest_api_id = "${aws_api_gateway_rest_api.tddapi.id}"
-  parent_id   = "${aws_api_gateway_rest_api.tddapi.root_resource_id}"
+  rest_api_id = aws_api_gateway_rest_api.tddapi.id
+  parent_id   = aws_api_gateway_rest_api.tddapi.root_resource_id
   path_part   = "tdd_ddb_query"
 }
 
 resource "aws_api_gateway_method" "tddget" {
-  rest_api_id   = "${aws_api_gateway_rest_api.tddapi.id}"
-  resource_id   = "${aws_api_gateway_resource.tddresource.id}"
+  rest_api_id   = aws_api_gateway_rest_api.tddapi.id
+  resource_id   = aws_api_gateway_resource.tddresource.id
   http_method   = "GET"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "integration" {
-  rest_api_id             = "${aws_api_gateway_rest_api.tddapi.id}"
-  resource_id             = "${aws_api_gateway_resource.tddresource.id}"
-  http_method             = "${aws_api_gateway_method.tddget.http_method}"
+  rest_api_id             = aws_api_gateway_rest_api.tddapi.id
+  resource_id             = aws_api_gateway_resource.tddresource.id
+  http_method             = aws_api_gateway_method.tddget.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.data_source_ddb.arn}/invocations"
@@ -137,21 +150,24 @@ resource "aws_api_gateway_integration" "integration" {
 resource "aws_lambda_permission" "apigw_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.data_source_ddb.arn}"
+  function_name = aws_lambda_function.data_source_ddb.arn
   principal     = "apigateway.amazonaws.com"
 
   # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
-  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${var.accountId}:${aws_api_gateway_rest_api.tddapi.id}/*/${aws_api_gateway_method.tddget.http_method}${aws_api_gateway_resource.tddresource.path}"
+  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.tddapi.id}/*/${aws_api_gateway_method.tddget.http_method}${aws_api_gateway_resource.tddresource.path}"
 }
 
 resource "aws_api_gateway_deployment" "ddtdeployment" {
-  depends_on = ["aws_api_gateway_integration.integration"]
+  depends_on = [aws_api_gateway_integration.integration]
 
-  rest_api_id = "${aws_api_gateway_rest_api.tddapi.id}"
+  rest_api_id = aws_api_gateway_rest_api.tddapi.id
   stage_name  = "prod"
-
 }
 
 output "invoke-url" {
-    value = "https://${aws_api_gateway_deployment.ddtdeployment.rest_api_id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${aws_api_gateway_deployment.ddtdeployment.stage_name}/${aws_lambda_function.data_source_ddb.function_name}"
+  value = "https://${aws_api_gateway_deployment.ddtdeployment.rest_api_id}.execute-api.${data.aws_region.current.name}.amazonaws.com/${aws_api_gateway_deployment.ddtdeployment.stage_name}/${aws_lambda_function.data_source_ddb.function_name}"
+}
+
+output "datasource-dynamodb" {
+  value = aws_dynamodb_table.terraform_datasource.name
 }

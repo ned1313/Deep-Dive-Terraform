@@ -3,16 +3,16 @@ variable "network_remote_state_key" {
   default = "networking.state"
 }
 
-variable "network_remote_state_bucket" {
-  default = "ddt-networking"
+variable "network_remote_state_bucket" {}
+
+variable "region" {
+  default = "us-east-1"
 }
 
 variable "aws_profile" {}
 
 #Web front end variables
-variable "key_name" {
-  default = "PluralsightKeys"
-}
+variable "key_name" {}
 
 variable "ip_range" {
   default = "0.0.0.0/0"
@@ -31,6 +31,8 @@ variable "rds_password" {
 variable "projectcode" {
   default = "8675309"
 }
+
+variable "tablename" {}
 
 variable "url" {}
 
