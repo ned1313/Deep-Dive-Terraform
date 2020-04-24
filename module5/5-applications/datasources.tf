@@ -13,7 +13,7 @@ locals {
 data "terraform_remote_state" "networking" {
   backend = "s3"
 
-  config {
+  config = {
     key        = terraform.workspace == "default" ? var.network_remote_state_key : local.workspace_key
     bucket     = var.network_remote_state_bucket
     region     = var.region
