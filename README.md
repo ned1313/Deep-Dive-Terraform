@@ -2,11 +2,17 @@
 
 Welcome to Terraform - Deep Dive.  These exercise files are meant to accompany my course on [Pluralsight](https://app.pluralsight.com/library/courses/deep-dive-terraform/).  The course was developed using version 0.11.x of Terraform.  The video clips are still using that version, but the exercise files have been updated to support version 0.12.x. As far as I know there are no coming changes that will significantly impact the validity of these exercise files.  But I also don't control all the plug-ins, providers, and modules used by the configurations. 
 
+## AWS Account
+
+You are going to need an account where you have FullAdmin permissions. You are going to be creating policies, roles, users, access keys, VPCs, etc. If you don't have enough permissions in your current environment, then I recommend creating a temporary account to mess around in. In fact, probably do that regardless. You don't want to accidentally mess something up at work because you were trying to learn about Terraform.
+
 ## Using the files
 
-Each folder represents a module from the course and is completely self contained.  In each module there will be an example of the *tfvars* file that you will use named *terraform.tfvars.example*.  Simply update the contents of the file and rename it *terraform.tfvars*.  Due to the sensitive nature of the information you place in the *tfvars* file, **do not** check it into source control, especially a public repository.  Some of us - *read me* - have made that mistake before and had to delete AWS access keys post-haste.
+Each folder represents a module from the course and is completely self contained.  In each module and subfolder there will be an example of the *tfvars* file that you will use named *terraform.tfvars.example*.  Simply update the contents of the file and rename it *terraform.tfvars*.  Due to the sensitive nature of the information you place in the *tfvars* file, **do not** check it into source control, especially a public repository.  Some of us - *read me* - have made that mistake before and had to delete AWS access keys post-haste.
 
-Once you have updated and renamed the *tfvars* file(s), you can run the commands in the *m#_commands.txt* file, where the *#* is the number of the module.  Be sure to run the commands from the working directory of the module.  Or you can just noodle around on the terraform CLI and see what you can discover/break.  If you run into an issue, please submit it as such and I will do my best to remediate it.
+Once you have updated and renamed the *tfvars* file(s), you can run the commands in the *name_commands.txt* file, where the *name* is the name of the module or folder.  Be sure to run the commands from the same directory that the commands text file is located in.  Or you can just noodle around on the terraform CLI and see what you can discover/break.  If you run into an issue, please submit it as such and I will do my best to remediate it.
+
+Aside from module 2, all the other modules include subfolders that are numbered in the order they should be run. In most cases this is to deploy the remote state location and set up prerequisites. Please note, the folder structure **will not** mirror what you see in the course. I have tried to reorganize things to make it easier to follow along with the concepts.
 
 ## AWS Key Pairs
 
@@ -27,15 +33,19 @@ Another issue I have discovered from time to time is that Terraform doesn't much
 
 ## MONEY!!!
 
-A gentle reminder about cost.  The course will have you creating resources in AWS.  Some of the resources are not going to be 100% free.  In most cases I have tried to use the [Free-tier](https://aws.amazon.com/free/) when possible, but in some cases I have elected to use a larger size EC2 instance to demonstrate the possibilities with multiple environments.  
+A gentle reminder about cost.  The course will have you creating resources in AWS.  Some of the resources are not going to be 100% free.  In most cases I have tried to use the [Free-tier](https://aws.amazon.com/free/) when possible, but in some cases I have elected to use a larger size EC2 instance to demonstrate the possibilities with multiple environments. Additionally, the NAT gateways in the networking sections are not free! They can run about $40 a piece for the month.
 
-When you complete an exercise in the course, be sure to tear down the infrastructure.  Each exercise file ends with `terraform destroy`.  Just run that command and approve the destruction to remove all resources from AWS.
+When you complete an exercise in the course, be sure to tear down the infrastructure.  Each exercise file ends with `terraform destroy`.  Just run that command and approve the destruction to remove all resources from AWS. You should remove infrastructure in the reverse order that it was deployed. Destroy folder `5-applications`, then `4-networking`, then `2-lambda`. You get the idea.
+
+### Module 5
+
+A special note about module 5. The process has you deploy resources using Jenkins. In order to destroy the infrastructure, kick off a build and select *Cancel* during the approval stage. Cancelling the process with trigger a destruction of the environment. Don't use this process in real life, you'll end up with some very unhappy Ops folks.
 
 ## Certification
 
-HashiCorp will be releasing the *Terraform Certified Associate* certification in the near future - depending on when you're reading this it might already be out.  You might be wondering if this course fully prepares you for the cert.  **It does not.**  Taking this course along with the [Terraform - Getting Started]((https://app.pluralsight.com/library/courses/terraform-getting-started) course on Pluralsight will meet most of the learning objectives for the certification, but there is no substitute for running the software on your own and hacking away.
+HashiCorp has released the *Terraform Certified Associate* certification.  You might be wondering if this course fully prepares you for the cert.  **It does not.**  Taking this course along with the [Terraform - Getting Started]((https://app.pluralsight.com/library/courses/terraform-getting-started) course on Pluralsight will meet most of the learning objectives for the certification, but there is no substitute for running the software on your own and hacking away.
 
-I am working on a certification guide with two other authors, and I will provide a link once that is ready.  This is an unofficial guide, but I believe in concert with the Pluralsight courses you will be in a good position to sit the exam.
+I have coauthored a certification guide which you can find on [Leanpub](https://leanpub.com/terraform-certified/).  This is an unofficial guide, but I believe in concert with the Pluralsight courses you will be in a good position to sit the exam.
 
 ## Conclusion
 
