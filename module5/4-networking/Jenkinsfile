@@ -45,7 +45,7 @@ pipeline {
                         sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' \
                           -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
                           -var 'url=${params.LAMBDA_URL}' -var 'region=${params.REGION}' \
-                          -var 'tablename=${params.TABLENAME}' \
+                          -var 'tablename=${params.DATASOURCE}' \
                           -input=false -out terraform-networking.tfplan;echo \$? > status"
                         stash name: "terraform-networking-plan", includes: "terraform-networking.tfplan"
                     }
@@ -66,6 +66,7 @@ pipeline {
                              -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
                              -var 'url=${params.LAMBDA_URL}' \
                              -var 'region=${params.REGION}' \
+                             -var 'tablename=${params.DATASOURCE}' \
                              -auto-approve"
                         }
                         currentBuild.result = 'UNSTABLE'
