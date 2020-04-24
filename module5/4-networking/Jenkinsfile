@@ -9,6 +9,7 @@ pipeline {
         string(name: 'DYNAMODB_STATELOCK', defaultValue: 'ddt-tfstatelock', description:'DynamoDB table for state locking')
         string(name: 'NETWORKING_BUCKET', defaultValue: '', description:'S3 bucket to use for state locking')
         string(name: 'REGION', defaultValue: 'us-east-1', description:'Region for resources')
+        string(name: 'DATASOURCE', defaultValue: '', description:'Table name for datasource')
         
     }
     environment {
@@ -44,7 +45,8 @@ pipeline {
                         sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' \
                           -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
                           -var 'url=${params.LAMBDA_URL}' -var 'region=${params.REGION}' \
-                          -out terraform-networking.tfplan;echo \$? > status"
+                          -var 'tablename=${params.TABLENAME}' \
+                          -input=false -out terraform-networking.tfplan;echo \$? > status"
                         stash name: "terraform-networking-plan", includes: "terraform-networking.tfplan"
                     }
                 }

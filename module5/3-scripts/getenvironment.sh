@@ -9,6 +9,12 @@ set -e
 # and escaped for consumption by the shell.
 eval "$(jq -r '@sh "WORKSPACE=\(.workspace) PROJECTCODE=\(.projectcode) URL=\(.url) REGION=\(.region) TABLENAME=\(.tablename)"')"
 
+echo $WORKSPACE
+echo $PROJECTCODE
+echo $REGION
+echo $URL
+echo $TABLENAME
+
 # Placeholder for whatever data-fetching logic your script implements
 curl --header "querytext: $WORKSPACE-$PROJECTCODE" \ 
   --header "region: $REGION" \ 
