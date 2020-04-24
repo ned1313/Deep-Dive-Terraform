@@ -42,7 +42,8 @@ http://127.0.0.1:8080
 # Definition: Pipeline script from SCM
 # SCM: Git
 # Repo URL: YOUR_REPO_URL or https://github.com/ned1313/Deep-Dive-Terraform.git
-# Script path: 4-networking/Jenkinsfile
+# Script path: module5/4-networking/Jenkinsfile
+# Uncheck lightweight checkout
 
 # Go to credentials -> global
 # Create a credential of type secret text with ID networking_access_key and the access key as the secret
@@ -58,9 +59,13 @@ docker ps
 docker cp .\terraform_plugins jenkins:/var/jenkins_home
 
 #Install jq for the external data source script to run properly
+#and install git for SCM control
 docker exec -it -u root jenkins /bin/bash
 apt-get update
-apt-get install jq -y
+apt-get install jq git -y
 exit
 
 #Now we can run a build of the network pipeline
+# First build will fail, but now the parameters will be Available
+
+# Run a new build WITH parameters

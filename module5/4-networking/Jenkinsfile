@@ -41,8 +41,10 @@ pipeline {
                         } catch (err) {
                             sh "terraform workspace select ${params.WORKSPACE}"
                         }
-                        sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
-                        -var 'url=${params.LAMBDA_URL}' -var 'region=${params.REGION}' -out terraform-networking.tfplan;echo \$? > status"
+                        sh "terraform plan -var 'aws_access_key=$NETWORKING_ACCESS_KEY' \
+                          -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
+                          -var 'url=${params.LAMBDA_URL}' -var 'region=${params.REGION}' \
+                          -out terraform-networking.tfplan;echo \$? > status"
                         stash name: "terraform-networking-plan", includes: "terraform-networking.tfplan"
                     }
                 }
@@ -59,9 +61,9 @@ pipeline {
                         apply = false
                         dir('module5/networking'){
                             sh "terraform destroy -var 'aws_access_key=$NETWORKING_ACCESS_KEY' \
-                             -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \ 
-                             -var 'url=${params.LAMBDA_URL}' \ 
-                             -var 'region=${params.REGION}' \ 
+                             -var 'aws_secret_key=$NETWORKING_SECRET_KEY' \
+                             -var 'url=${params.LAMBDA_URL}' \
+                             -var 'region=${params.REGION}' \
                              -auto-approve"
                         }
                         currentBuild.result = 'UNSTABLE'
