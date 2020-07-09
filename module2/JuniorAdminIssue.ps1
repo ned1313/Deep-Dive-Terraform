@@ -1,31 +1,13 @@
-param(
-    $TerraformVarsFile = "terraform.tfvars"
-)
-#Get the AWS keys
-$content = Get-Content $TerraformVarsFile
-$values = @{}
-foreach($line in $content){ 
-    if($line){
-        $values.Add($line.Split(' ')[0],$line.Split(' ')[2])
-    }
-}
-
-#Install the AWS PowerShell if you don't already have it
-if(-not (Get-Module AWSPowerShell -ErrorAction SilentlyContinue)){
-    Install-Module AWSPowerShell -Force
-}
-
-#Set the AWS Credentials
-Set-AWSCredential -SecretKey $values.aws_secret_key.Replace('"','') `
-     -AccessKey $values.aws_access_key.Replace('"','') -StoreAs default
+#Select the AWS profile deep-dive
+Set-AWSCredential -ProfileName "deep-dive"
 
 #Set the default region as applicable
 $region = "us-east-1"
 Set-DefaultAWSRegion -Region $region
 
 #Get the VPC and AZs
-#This assumes you used Terraform for the name of the VPC
-$vpc = Get-EC2Vpc -Filter @{Name="tag:Name"; Values="Terraform"}
+#This assumes you used Production for the name of the VPC
+$vpc = Get-EC2Vpc -Filter @{Name="tag:Name"; Values="globo-primary"}
 $azs = Get-EC2AvailabilityZone
 
 #Get the existing subnets
@@ -64,9 +46,6 @@ $JimmysResources = @{}
 $JimmysResources.Add("privateSubnet",$privateSubnet.SubnetId)
 $JimmysResources.Add("publicSubnet",$publicSubnet.SubnetId)
 $JimmysResources.Add("privateRouteTable",$privateRouteTable.RouteTableId)
-$JimmysResources.Add("natGateway",$ngw.NatGateway.NatGatewayId)
-$JimmysResources.Add("elasticIP",$eip.AllocationId)
-$JimmysResources.Add("natGatewayRoute","$($privateRouteTable.RouteTableId)_0.0.0.0/0")
 $JimmysResources.Add("privateRouteTableAssoc","$($privateSubnet.SubnetId)/$($privateRouteTable.RouteTableId)")
 $JimmysResources.Add("publicRouteTableAssoc","$($publicSubnet.SubnetId)/$($publicRouteTable.RouteTableId)")
 

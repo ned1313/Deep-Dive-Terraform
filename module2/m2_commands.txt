@@ -1,9 +1,23 @@
+# Configure an AWS profile with proper credentials
+aws configure --profile deep-dive
+
+# Linux or MacOS
+export AWS_PROFILE=deep-dive
+
+# Windows
+set AWS_PROFILE deep-dive
+
 terraform init
 terraform validate
 terraform plan -out m2.tfplan
 terraform apply "m2.tfplan"
 
-# Now run the JuniorAdminIssue.ps1 script to generate resources on AWS
+# Linux and MacOS: Run the junior_admin.sh script
+
+# Windows: Install the AWS PowerShell module
+Install-Module AWSPowerShell -Scope CurrentUser
+
+# Windows: Run the JuniorAdminIssue.ps1 script
 
 # Update your terraform.tfvars file to comment out the current 
 # private_subnets, public_subnets, and subnet_count values and
