@@ -6,37 +6,25 @@ $region = "us-east-1"
 Set-DefaultAWSRegion -Region $region
 
 #Get the VPC and AZs
-#This assumes you used Production for the name of the VPC
+#This assumes you used globo-primary for the name of the VPC
 $vpc = Get-EC2Vpc -Filter @{Name="tag:Name"; Values="globo-primary"}
 $azs = Get-EC2AvailabilityZone
-
-#Get the existing subnets
-$subnets = Get-EC2Subnet -Filter @{Name="vpc-id"; Values=$vpc.VpcId} 
-$existingAZs = $subnets | select AvailabilityZoneId -Unique
-$unusedAZs = $azs | ?{$existingAZs.AvailabilityZoneId -notcontains $_.ZoneId} | sort -Property ZoneName
+$az = ($azs | Sort-Object -Property ZoneName)[2]
 
 #Create two new subnets in the third AZ
-$privateSubnet = New-EC2Subnet -AvailabilityZone $unusedAZs[0].ZoneName `
-     -CidrBlock "10.0.5.0/24" -VpcId $vpc.VpcId
-$publicSubnet = New-EC2Subnet -AvailabilityZone $unusedAZs[0].ZoneName `
-     -CidrBlock "10.0.4.0/24" -VpcId $vpc.VpcId
+$privateSubnet = New-EC2Subnet -AvailabilityZone $az.ZoneName `
+     -CidrBlock "10.0.12.0/24" -VpcId $vpc.VpcId
+$publicSubnet = New-EC2Subnet -AvailabilityZone $az.ZoneName `
+     -CidrBlock "10.0.2.0/24" -VpcId $vpc.VpcId
 
 #Get the Public route table for all public subnets and associate the new public subnet
 $publicRouteTable = Get-EC2RouteTable `
-     -Filter @{ Name="tag:Name"; values="Terraform-public"} -Region $region
+     -Filter @{ Name="tag:Name"; values="globo-primary-public"} -Region $region
 $publicRouteTableAssociation = Register-EC2RouteTable `
      -RouteTableId $publicRouteTable.RouteTableId -SubnetId $publicSubnet.SubnetId
 
-#Create the elastic IP and NAT Gateway
-$eip = New-EC2Address -Domain vpc
-$ngw = New-EC2NatGateway -AllocationId $eip.AllocationId -SubnetId $publicSubnet.SubnetId
-#Wait a few seconds for the NAT Gateway to be created
-Wait-Event -Timeout 5
-
 #Create a route table for the new private subnet and send traffic through the NAT Gateway
 $privateRouteTable = New-EC2RouteTable -VpcId $vpc.VpcId
-New-EC2Route -DestinationCidrBlock 0.0.0.0/0 -NatGatewayId $ngw.NatGateway.NatGatewayId `
-     -RouteTableId $privateRouteTable.RouteTableId
 Register-EC2RouteTable -RouteTableId $privateRouteTable.RouteTableId `
      -SubnetId $privateSubnet.SubnetId
 
