@@ -13,3 +13,6 @@
 
 # .pem files
 *.pem
+
+# Consul data directories
+**/consul/data/*

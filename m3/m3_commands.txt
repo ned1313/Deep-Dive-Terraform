@@ -5,7 +5,7 @@ aws configure --profile deep-dive
 export AWS_PROFILE=deep-dive
 
 # Windows
-set AWS_PROFILE deep-dive
+$env:AWS_PROFILE="deep-dive"
 
 # Deploy the current environment
 terraform init
