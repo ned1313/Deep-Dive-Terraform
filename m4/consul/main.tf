@@ -32,7 +32,11 @@ resource "consul_keys" "applications" {
 resource "consul_acl_policy" "networking" {
   name = "networking"
   rules = <<-RULE
-    key_prefix "networking/" {
+    key_prefix "networking" {
+      policy = "write"
+    }
+
+    session_prefix "" {
       policy = "write"
     }
     RULE
@@ -41,13 +45,18 @@ resource "consul_acl_policy" "networking" {
 resource "consul_acl_policy" "applications" {
   name = "applications"
   rules = <<-RULE
-    key_prefix "applications/" {
+    key_prefix "applications" {
       policy = "write"
     }
 
-    key_prefix "networking/state/" {
+    key_prefix "networking/state" {
       policy = "read"
     }
+
+    session_prefix "" {
+      policy = "write"
+    }
+
     RULE
 }
 

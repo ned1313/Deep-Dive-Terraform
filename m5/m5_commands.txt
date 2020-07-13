@@ -1,0 +1,52 @@
+## Go into consul subfolder
+cd consul
+
+## We are going to add config data to our Consul installation
+
+# Let's set the Consul token to Mary Moe
+# Replace SECRETID_VALUE with Mary Moe's secret ID
+# Linux and MacOS
+export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+
+# Windows
+$env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
+
+# Write the configuration data for globo-primary config
+consul kv put networking/configuration/globo-primary/net_info @globo-primary.json
+consul kv put networking/configuration/globo-primary/common_tags @common-tags.json
+
+## Now go up and into the networking folder
+cd ..\networking
+
+## We're going to initialize the Terraform config to use the Consul backend
+terraform init -backend-config="path=networking/state/globo-primary"
+
+# Verify our state is loaded
+terraform state list
+
+# Now we'll run a plan using the values stored in Consul.
+# There should be NO changes required
+terraform plan -out config.tfplan
+
+## Now we'll update our config data to use templates and default tags
+# Go into the consul folder
+cd ..\consul
+
+# Write new data
+consul kv put networking/configuration/globo-primary/common_tags @common-tags.json
+consul kv put networking/configuration/globo-primary/net_info @globo-primary-2.json
+
+# Go into the networking2 folder
+cd ..\networking2
+
+## We're going to initialize the Terraform config to use the Consul backend
+terraform init -backend-config="path=networking/state/globo-primary"
+
+# Verify our state is loaded
+terraform state list
+
+# Now we'll run a plan using the values stored in Consul.
+# All the tags should be updated
+terraform plan -out config.tfplan
+
+terraform apply config.tfplan
