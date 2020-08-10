@@ -1,0 +1,11 @@
+{
+    "asg_instance_size": "t2.micro",
+    "asg_max_size": "5",
+    "asg_min_size": "3",
+    "rds_storage_size": "20",
+    "rds_engine": "mysql",
+    "rds_version": "5.6.37",
+    "rds_instance_size": "db.t2.micro",
+    "rds_multi_az": "false",
+    "rds_db_name": "wordpress"
+}

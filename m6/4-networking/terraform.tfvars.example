@@ -1,5 +1,0 @@
-aws_profile = "marymoe"
-
-tablename = "DATA_SOURCE_TABLE_NAME"
-
-url = "URL_FROM_THE_LAMBDA_OUTPUT"

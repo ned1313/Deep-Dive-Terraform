@@ -33,7 +33,6 @@ terraform plan -out config.tfplan
 cd ..\consul
 
 # Write new data
-consul kv put networking/configuration/globo-primary/common_tags @common-tags.json
 consul kv put networking/configuration/globo-primary/net_info @globo-primary-2.json
 
 # Go into the networking2 folder

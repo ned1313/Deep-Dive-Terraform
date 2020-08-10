@@ -1,5 +1,0 @@
-aws_access_key = ""
-
-aws_secret_key = ""
-
-user_home_path = "full_path/to_your/home_directory"
