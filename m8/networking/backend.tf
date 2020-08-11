@@ -1,6 +1,9 @@
 ##################################################################################
-# OUTPUT
+# BACKENDS
 ##################################################################################
-output "elb_dns_name" {
-  value = aws_elb.webapp_elb.dns_name
+terraform {
+  backend "consul" {
+    address = "host.docker.internal:8500"
+    scheme = "http"
+  }
 }

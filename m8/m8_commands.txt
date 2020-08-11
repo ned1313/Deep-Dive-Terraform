@@ -1,0 +1,21 @@
+## Make sure consul is still running, if not open a separate terminal
+## Go into m4\consul and fire it back up by running 
+consul agent -bootstrap -config-file="config/consul-config.hcl" -bind="127.0.0.1"
+
+## Go back to first terminal window
+# We are going to create two tokens for Jenkins to use net and app
+# First use the root token
+
+# Linux and MacOS
+export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+
+# Windows
+$env:CONSUL_HTTP_TOKEN="bb7248d9-814b-284d-5fec-620a3201a584"
+
+# Create two tokens (networking and applications)
+consul acl token create -policy-name=networking -description="Jenkins networking"
+consul acl token create -policy-name=applications -description="Jenkins applications"
+
+# Make note of SecretID for later
+
+# Create a Jenkins container

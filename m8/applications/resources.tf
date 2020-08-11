@@ -6,24 +6,40 @@
 
 provider "aws" {
   version = "~>2.0"
-  profile = var.aws_profile
+  profile = "deep-dive"
   region  = var.region
+}
+
+provider "consul" {
+  address    = "${var.consul_address}:${var.consul_port}"
+  datacenter = var.consul_datacenter
+}
+
+##################################################################################
+# LOCALS
+##################################################################################
+
+locals {
+  asg_instance_size = jsondecode(data.consul_keys.applications.var.applications)["asg_instance_size"]
+  asg_max_size = jsondecode(data.consul_keys.applications.var.applications)["asg_max_size"]
+  asg_min_size = jsondecode(data.consul_keys.applications.var.applications)["asg_min_size"]
+  rds_storage_size = jsondecode(data.consul_keys.applications.var.applications)["rds_storage_size"]
+  rds_engine = jsondecode(data.consul_keys.applications.var.applications)["rds_engine"]
+  rds_version = jsondecode(data.consul_keys.applications.var.applications)["rds_version"]
+  rds_instance_size = jsondecode(data.consul_keys.applications.var.applications)["rds_instance_size"]
+  rds_multi_az = jsondecode(data.consul_keys.applications.var.applications)["rds_multi_az"]
+  rds_db_name = jsondecode(data.consul_keys.applications.var.applications)["rds_db_name"]
+
+  common_tags = merge({
+        Environment = terraform.workspace
+      },
+      jsondecode(data.consul_keys.applications.var.common_tags)
+    )
 }
 
 ##################################################################################
 # RESOURCES
 ##################################################################################
-data "template_file" "userdata" {
-  template = file("templates/userdata.sh")
-
-  vars = {
-    wp_db_hostname   = aws_db_instance.rds.endpoint
-    wp_db_name = "${terraform.workspace}${data.external.configuration.result.rds_db_name}"
-    wp_db_user            = var.rds_username
-    wp_db_password = var.rds_password
-    playbook_repository = var.playbook_repository
-  }
-}
 
 resource "aws_launch_configuration" "webapp_lc" {
   lifecycle {
@@ -31,8 +47,8 @@ resource "aws_launch_configuration" "webapp_lc" {
   }
 
   name_prefix   = "${terraform.workspace}-ddt-lc-"
-  image_id      = data.aws_ami.ubuntu.id
-  instance_type = data.external.configuration.result.asg_instance_size
+  image_id      = data.aws_ami.aws_linux.id
+  instance_type = local.asg_instance_size
 
   security_groups = [
     aws_security_group.webapp_http_inbound_sg.id,
@@ -40,13 +56,13 @@ resource "aws_launch_configuration" "webapp_lc" {
     aws_security_group.webapp_outbound_sg.id,
   ]
 
-  user_data                   = data.template_file.userdata.rendered
-  key_name                    = var.key_name
+  user_data                   = file("./templates/userdata.sh")
   associate_public_ip_address = true
+  iam_instance_profile = aws_iam_instance_profile.asg.name
 }
 
 resource "aws_elb" "webapp_elb" {
-  name    = "ddt-webapp-elb"
+  name    = "ddt-webapp-elb-${terraform.workspace}"
   subnets = data.terraform_remote_state.networking.outputs.public_subnets
 
   listener {
@@ -71,35 +87,34 @@ resource "aws_elb" "webapp_elb" {
 
 resource "aws_autoscaling_group" "webapp_asg" {
   lifecycle {
-    create_before_destroy = true
+    #create_before_destroy = true
+    create_before_destroy = false
   }
 
   vpc_zone_identifier   = data.terraform_remote_state.networking.outputs.public_subnets
-  name                  = "ddt_webapp_asg"
-  max_size              = data.external.configuration.result.asg_max_size
-  min_size              = data.external.configuration.result.asg_min_size
-  wait_for_elb_capacity = data.external.configuration.result.asg_min_size
+  name                  = "ddt_webapp_asg-${terraform.workspace}"
+  max_size              = local.asg_max_size
+  min_size              = local.asg_min_size
+  wait_for_elb_capacity = local.asg_min_size
   force_delete          = true
   launch_configuration  = aws_launch_configuration.webapp_lc.id
   load_balancers        = [aws_elb.webapp_elb.name]
 
-  tags = [
-      map("key", "Name", "value", "ddt_webapp_asg", "propagate_at_launch", true),
-      map("key", "environment", "value", data.external.configuration.result.environment, "propagate_at_launch", true),
-      map("key", "billing_code", "value", data.external.configuration.result.billing_code, "propagate_at_launch", true),
-      map("key", "project_code", "value", data.external.configuration.result.project_code, "propagate_at_launch", true),
-      map("key", "network_lead", "value", data.external.configuration.result.network_lead, "propagate_at_launch", true),
-      map("key", "application_lead", "value", data.external.configuration.result.application_lead, "propagate_at_launch", true)
-    
-  ]
-
+  dynamic "tag" {
+    for_each = local.common_tags
+    content {
+      key = tag.key
+      value = tag.value
+      propagate_at_launch = true
+    }
+  }
 }
 
 #
 # Scale Up Policy and Alarm
 #
 resource "aws_autoscaling_policy" "scale_up" {
-  name                   = "ddt_asg_scale_up"
+  name                   = "ddt_asg_scale_up-${terraform.workspace}"
   scaling_adjustment     = 2
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 300
@@ -107,7 +122,7 @@ resource "aws_autoscaling_policy" "scale_up" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
-  alarm_name                = "ddt-high-asg-cpu"
+  alarm_name                = "ddt-high-asg-cpu-${terraform.workspace}"
   comparison_operator       = "GreaterThanThreshold"
   evaluation_periods        = "2"
   metric_name               = "CPUUtilization"
@@ -129,7 +144,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
 # Scale Down Policy and Alarm
 #
 resource "aws_autoscaling_policy" "scale_down" {
-  name                   = "ddt_asg_scale_down"
+  name                   = "ddt_asg_scale_down-${terraform.workspace}"
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 600
@@ -137,7 +152,7 @@ resource "aws_autoscaling_policy" "scale_down" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
-  alarm_name                = "ddt-low-asg-cpu"
+  alarm_name                = "ddt-low-asg-cpu-${terraform.workspace}"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "5"
   metric_name               = "CPUUtilization"
@@ -155,26 +170,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
   alarm_actions     = [aws_autoscaling_policy.scale_down.arn]
 }
 
-resource "aws_instance" "bastion" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = data.external.configuration.result.asg_instance_size
-  subnet_id                   = element(data.terraform_remote_state.networking.outputs.public_subnets,0)
-  associate_public_ip_address = true
-  vpc_security_group_ids      = [aws_security_group.bastion_ssh_sg.id]
-  key_name                    = var.key_name
-
-  tags = merge(
-    local.common_tags,
-    map(
-      "Name", "ddt_bastion_host",
-    )
-  )
-}
-
-resource "aws_eip" "bastion" {
-  instance = aws_instance.bastion.id
-  vpc      = true
-}
+## Database Config 
 
 resource "aws_db_subnet_group" "db_subnet_group" {
   name       = "${terraform.workspace}-ddt-rds-subnet-group"
@@ -183,12 +179,12 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 resource "aws_db_instance" "rds" {
   identifier             = "${terraform.workspace}-ddt-rds"
-  allocated_storage      = data.external.configuration.result.rds_storage_size
-  engine                 = data.external.configuration.result.rds_engine
-  engine_version         = data.external.configuration.result.rds_version
-  instance_class         = data.external.configuration.result.rds_instance_size
-  multi_az               = data.external.configuration.result.rds_multi_az
-  name                   = "${terraform.workspace}${data.external.configuration.result.rds_db_name}"
+  allocated_storage      = local.rds_storage_size
+  engine                 = local.rds_engine
+  engine_version         = local.rds_version
+  instance_class         = local.rds_instance_size
+  multi_az               = local.rds_multi_az
+  name                   = "${terraform.workspace}${local.rds_db_name}"
   username               = var.rds_username
   password               = var.rds_password
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.id
