@@ -59,7 +59,7 @@ http://127.0.0.1:8080
 .\getTerraformPlugin.ps1
 
 #Now we can run a build of the network pipeline
-# First build will fail, but now the parameters will be Available
+# First build might fail, but now the parameters will be Available
 
 # Run a new build WITH parameters
 
@@ -72,7 +72,7 @@ http://127.0.0.1:8080
 # Definition: Pipeline script from SCM
 # SCM: Git
 # Repo URL: YOUR_REPO_URL or https://github.com/ned1313/Deep-Dive-Terraform.git
-# Script path: module5/5-applications/Jenkinsfile
+# Script path: m8/applications/Jenkinsfile
 # Uncheck lightweight checkout
 
 # First build will fail, but now the parameters will be Available

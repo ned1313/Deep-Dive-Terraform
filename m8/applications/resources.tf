@@ -6,7 +6,6 @@
 
 provider "aws" {
   version = "~>2.0"
-  profile = "deep-dive"
   region  = var.region
 }
 

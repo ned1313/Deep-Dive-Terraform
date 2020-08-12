@@ -18,7 +18,7 @@ data "terraform_remote_state" "networking" {
   backend = "consul"
 
   config = {
-    address = "127.0.0.1:8500"
+    address = "${var.consul_address}:8500"
     scheme = "http"
     path     = terraform.workspace == "default" ? "networking/state/globo-primary" : "networking/state/globo-primary-env:${terraform.workspace}"
   }
