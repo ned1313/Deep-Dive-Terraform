@@ -1,6 +1,5 @@
 #### S3 buckets
 variable "aws_bucket_prefix" {
-  #type    = strings
   type = string
   
   default = "globo"
@@ -12,7 +11,6 @@ resource "random_integer" "rand" {
 }
 
 locals {
-  #bucket_name         = "${var.aws_bucket_prefix}_${random_integer.rand.result}"
   bucket_name         = "${var.aws_bucket_prefix}-${random_integer.rand.result}"
 }
 
@@ -35,8 +33,7 @@ resource "aws_iam_instance_profile" "asg" {
     create_before_destroy = false
   }
 
-  name = "${terraform.workspace}_asg_profile_bug"
-  #role = "aws_iam_role.asg.name"
+  name = "${terraform.workspace}_asg_profile"
   role = aws_iam_role.asg.name
 }
 
@@ -67,7 +64,6 @@ resource "aws_iam_role" "asg" {
 
 resource "aws_iam_role_policy" "asg" {
   name = "${terraform.workspace}-globo-primary-rds"
-  #role = aws_iam_role.asg.ids
   role = aws_iam_role.asg.id
 
   policy = <<-EOF

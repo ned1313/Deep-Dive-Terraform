@@ -86,7 +86,6 @@ resource "aws_elb" "webapp_elb" {
 
 resource "aws_autoscaling_group" "webapp_asg" {
   lifecycle {
-    #create_before_destroy = true
     create_before_destroy = false
   }
 
