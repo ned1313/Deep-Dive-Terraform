@@ -1,0 +1,51 @@
+## Make sure consul is still running, if not open a separate terminal
+## Go into m4\consul and fire it back up by running 
+consul agent -bootstrap -config-file="config/consul-config.hcl" -bind="127.0.0.1"
+
+## If you don't already have the development networking environment deployed
+## let's do that know
+
+# Let's set the Consul token to Mary Moe
+# Replace SECRETID_VALUE with Mary Moe's secret ID
+# Linux and MacOS
+export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+
+# Windows
+$env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
+
+# Initialize the backend
+terraform init -backend-config="path=networking/state/globo-primary"
+
+# Select the workspace
+terraform workspace select development
+
+# Create and apply the configuration
+terraform plan -out dev.tfplan
+
+terraform apply "dev.tfplan"
+
+## Now let's use Sally Sue's token for Consul
+## You can go into the ACL section of the Consul UI and grab it
+
+# Linux and MacOS
+export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+
+# Windows
+$env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
+
+## We are going to deploy the development application environment
+## If you already have it deployed, you can run destroy to remove it
+
+## Go into the applications directory
+cd ../applications
+
+# Initialize the backend
+terraform init -backend-config="path=applications/state/globo-primary"
+
+# Select the workspace
+terraform workspace select development
+
+# Create and apply the configuration
+terraform plan -out dev.tfplan
+
+terraform apply "dev.tfplan"

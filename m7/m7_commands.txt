@@ -65,3 +65,14 @@ cd ../panic/test
 
 # Initialize terraform with -from-module
 terraform init -from-module="../toplevel"
+
+# Same backend for all workspaces
+terraform init -backend-config="path=applications/state/globo-primary"
+
+# Create the workspace
+terraform workspace new development
+
+# Create and apply the configuration
+terraform plan -out dev.tfplan
+
+terraform apply "dev.tfplan"
