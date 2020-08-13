@@ -21,7 +21,7 @@ pipeline {
     }
 
     stages {
-        stage('NetworkInit'){
+        stage('ApplicationInit'){
             steps {
                 dir('m8/applications/'){
                     sh 'terraform --version'
@@ -29,14 +29,14 @@ pipeline {
                 }
             }
         }
-        stage('NetworkValidate'){
+        stage('ApplicationValidate'){
             steps {
                 dir('m8/applications/'){
                     sh 'terraform validate'
                 }
             }
         }
-        stage('NetworkPlan'){
+        stage('ApplicationPlan'){
             steps {
                 dir('m8/applications/'){
                     script {
@@ -51,7 +51,7 @@ pipeline {
                 }
             }
         }
-        stage('NetworkApply'){
+        stage('ApplicationApply'){
             steps {
                 script{
                     def apply = false
