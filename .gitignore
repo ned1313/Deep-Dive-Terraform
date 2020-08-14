@@ -8,3 +8,4 @@
 debuglog.txt
 **/terraform_plugins/**
 **/.vscode/**
+**/consul/data/**
