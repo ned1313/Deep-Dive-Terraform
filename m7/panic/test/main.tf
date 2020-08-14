@@ -1,4 +1,0 @@
-module "pi" {
-    source = "./module/"
-    
-}

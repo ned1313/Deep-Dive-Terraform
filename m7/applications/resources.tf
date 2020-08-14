@@ -87,8 +87,8 @@ resource "aws_elb" "webapp_elb" {
 
 resource "aws_autoscaling_group" "webapp_asg" {
   lifecycle {
-    #create_before_destroy = true
-    create_before_destroy = false
+    create_before_destroy = true
+    #create_before_destroy = false
   }
 
   vpc_zone_identifier   = data.terraform_remote_state.networking.outputs.public_subnets

@@ -10,7 +10,7 @@ consul agent -bootstrap -config-file="config/consul-config.hcl" -bind="127.0.0.1
 export CONSUL_HTTP_TOKEN=SECRETID_VALUE
 
 # Windows
-$env:CONSUL_HTTP_TOKEN="bb7248d9-814b-284d-5fec-620a3201a584"
+$env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
 
 # Create two tokens (networking and applications)
 consul acl token create -policy-name=networking -description="Jenkins networking"
