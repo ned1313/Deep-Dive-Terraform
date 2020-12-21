@@ -1,9 +1,20 @@
 ##################################################################################
+# CONFIGURATION - added for Terraform 0.14
+##################################################################################
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~>3.0"
+    }
+  }
+}
+##################################################################################
 # PROVIDERS
 ##################################################################################
 
 provider "aws" {
-  version = "~>2.0"
   profile = "deep-dive"
   region     = var.region
 }
@@ -21,7 +32,7 @@ data "aws_availability_zones" "available" {}
 # NETWORKING #
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
-  version = "2.44.0"
+  version = "~>2.0"
 
   name = "globo-primary"
 

@@ -1,3 +1,6 @@
+# Import the AWS module
+Import-Module AWSPowerShell.NetCore
+
 #Select the AWS profile deep-dive
 Set-AWSCredential -ProfileName "deep-dive"
 

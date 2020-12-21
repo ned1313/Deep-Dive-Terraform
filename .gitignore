@@ -16,3 +16,6 @@
 
 # Consul data directories
 **/consul/data/*
+
+# .hcl files
+*.hcl
