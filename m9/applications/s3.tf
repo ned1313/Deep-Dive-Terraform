@@ -1,7 +1,7 @@
 #### S3 buckets
 variable "aws_bucket_prefix" {
   type = string
-  
+
   default = "globo"
 }
 
@@ -11,7 +11,7 @@ resource "random_integer" "rand" {
 }
 
 locals {
-  bucket_name         = "${var.aws_bucket_prefix}-${random_integer.rand.result}"
+  bucket_name = "${var.aws_bucket_prefix}-${random_integer.rand.result}"
 }
 
 resource "aws_s3_bucket" "logs_bucket" {
@@ -42,7 +42,7 @@ resource "aws_iam_instance_profile" "asg" {
 resource "aws_iam_role" "asg" {
   name = "${terraform.workspace}_asg_role"
   path = "/"
-  
+
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",

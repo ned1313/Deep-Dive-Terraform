@@ -1,3 +1,10 @@
+# YOU MAY EXCEED YOUR EIP ADDRESS LIMIT WHEN YOU DEPLOY QA
+# You can request an increase through the AWS console in the Services Quotas area,
+# under the Amazon Elastic Compute Cloud category. I recommend setting it to 15 
+# just to be safe. It should be approved almost immediately, but may take 30 minutes 
+# to apply. So if you do it now, it should be ready by the time you get to that
+# portion of the module.
+
 ## Make sure consul is still running, if not open a separate terminal
 ## Go into m4\consul and fire it back up by running 
 consul agent -bootstrap -config-file="config/consul-config.hcl" -bind="127.0.0.1"
@@ -44,7 +51,7 @@ terraform apply qa.tfplan
 
 ## Creating production is an exercise I leave to you!
 
-## Now let's change to us Sally Sue's token for Consul
+## Now let's change to Sally Sue's token for Consul
 ## You can go into the ACL section of the Consul UI and grab it
 # Linux and MacOS
 export CONSUL_HTTP_TOKEN=SECRETID_VALUE

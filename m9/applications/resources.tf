@@ -1,11 +1,27 @@
 #Based on the work from https://github.com/arbabnazar/terraform-ansible-aws-vpc-ha-wordpress
 
 ##################################################################################
+# CONFIGURATION - added for Terraform 0.14
+##################################################################################
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~>3.0"
+    }
+    consul = {
+      source  = "hashicorp/consul"
+      version = "~>2.0"
+    }
+  }
+}
+
+##################################################################################
 # PROVIDERS
 ##################################################################################
 
 provider "aws" {
-  version = "~>2.0"
   profile = "deep-dive"
   region  = var.region
 }
@@ -21,20 +37,20 @@ provider "consul" {
 
 locals {
   asg_instance_size = jsondecode(data.consul_keys.applications.var.applications)["asg_instance_size"]
-  asg_max_size = jsondecode(data.consul_keys.applications.var.applications)["asg_max_size"]
-  asg_min_size = jsondecode(data.consul_keys.applications.var.applications)["asg_min_size"]
-  rds_storage_size = jsondecode(data.consul_keys.applications.var.applications)["rds_storage_size"]
-  rds_engine = jsondecode(data.consul_keys.applications.var.applications)["rds_engine"]
-  rds_version = jsondecode(data.consul_keys.applications.var.applications)["rds_version"]
+  asg_max_size      = jsondecode(data.consul_keys.applications.var.applications)["asg_max_size"]
+  asg_min_size      = jsondecode(data.consul_keys.applications.var.applications)["asg_min_size"]
+  rds_storage_size  = jsondecode(data.consul_keys.applications.var.applications)["rds_storage_size"]
+  rds_engine        = jsondecode(data.consul_keys.applications.var.applications)["rds_engine"]
+  rds_version       = jsondecode(data.consul_keys.applications.var.applications)["rds_version"]
   rds_instance_size = jsondecode(data.consul_keys.applications.var.applications)["rds_instance_size"]
-  rds_multi_az = jsondecode(data.consul_keys.applications.var.applications)["rds_multi_az"]
-  rds_db_name = jsondecode(data.consul_keys.applications.var.applications)["rds_db_name"]
+  rds_multi_az      = jsondecode(data.consul_keys.applications.var.applications)["rds_multi_az"]
+  rds_db_name       = jsondecode(data.consul_keys.applications.var.applications)["rds_db_name"]
 
   common_tags = merge({
-        Environment = terraform.workspace
-      },
-      jsondecode(data.consul_keys.applications.var.common_tags)
-    )
+    Environment = terraform.workspace
+    },
+    jsondecode(data.consul_keys.applications.var.common_tags)
+  )
 }
 
 ##################################################################################
@@ -58,7 +74,7 @@ resource "aws_launch_configuration" "webapp_lc" {
 
   user_data                   = data.template_file.userdata.rendered
   associate_public_ip_address = true
-  iam_instance_profile = aws_iam_instance_profile.asg.name
+  iam_instance_profile        = aws_iam_instance_profile.asg.name
 }
 
 resource "aws_elb" "webapp_elb" {
@@ -102,8 +118,8 @@ resource "aws_autoscaling_group" "webapp_asg" {
   dynamic "tag" {
     for_each = local.common_tags
     content {
-      key = tag.key
-      value = tag.value
+      key                 = tag.key
+      value               = tag.value
       propagate_at_launch = true
     }
   }

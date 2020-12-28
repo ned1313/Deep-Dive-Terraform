@@ -40,7 +40,7 @@ resource "aws_security_group" "webapp_ssh_inbound_sg" {
 
   vpc_id = data.terraform_remote_state.networking.outputs.vpc_id
 
-  tags = merge(local.common_tags,{
+  tags = merge(local.common_tags, {
     Name = "terraform_demo_webapp_ssh_inbound"
   })
 }
@@ -58,7 +58,7 @@ resource "aws_security_group" "webapp_outbound_sg" {
 
   vpc_id = data.terraform_remote_state.networking.outputs.vpc_id
 
-  tags = merge(local.common_tags,{
+  tags = merge(local.common_tags, {
     Name = "terraform_demo_webapp_outbound"
   })
 }
