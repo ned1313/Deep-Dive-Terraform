@@ -46,11 +46,11 @@ locals {
   rds_multi_az = jsondecode(data.consul_keys.applications.var.applications)["rds_multi_az"]
   rds_db_name = jsondecode(data.consul_keys.applications.var.applications)["rds_db_name"]
 
-  common_tags = merge({
-        Environment = terraform.workspace
-      },
-      jsondecode(data.consul_keys.applications.var.common_tags)
-    )
+  common_tags = merge(jsondecode(data.consul_keys.applications.var.common_tags),
+    {
+      Environment = terraform.workspace
+    }
+  )
 }
 
 ##################################################################################
