@@ -8,6 +8,8 @@ If you're looking for the older version of the course, that is still available o
 
 You are going to need an account where you have FullAdmin permissions. You are going to be creating policies, roles, profiles, VPCs, etc. If you don't have enough permissions in your current environment, then I recommend creating a temporary account to mess around in. In fact, probably do that regardless. You don't want to accidentally mess something up at work because you were trying to learn about Terraform.
 
+You may exceed your EIP address quota when deploying multiple enviornments. You can request an increase through the AWS console in the Services Quotas area, under the Amazon Elastic Compute Cloud category. I recommend setting it to 15 just to be safe. It should be approved almost immediately, but may take 30 minutes to apply. So if you do it now, it should be ready long before you get to that portion of the course.
+
 ## Using the files
 
 Each folder represents a module from the course and they often build upon each other. Especially, the directory m4 that has the setup for Consul and stores it's data. In each module and subfolder there may be an example of the *tfvars* file that you use named *terraform.tfvars.example*.  Simply update the contents of the file and rename it *terraform.tfvars*.

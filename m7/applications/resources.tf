@@ -1,11 +1,27 @@
 #Based on the work from https://github.com/arbabnazar/terraform-ansible-aws-vpc-ha-wordpress
 
 ##################################################################################
+# CONFIGURATION - added for Terraform 0.14
+##################################################################################
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~>3.0"
+    }
+    consul = {
+      source = "hashicorp/consul"
+      version = "~>2.0"
+    }
+  }
+}
+
+##################################################################################
 # PROVIDERS
 ##################################################################################
 
 provider "aws" {
-  version = "~>2.0"
   profile = "deep-dive"
   region  = var.region
 }

@@ -1,7 +1,28 @@
+##################################################################################
+# CONFIGURATION - added for Terraform 0.14
+##################################################################################
+
+terraform {
+  required_providers {
+    consul = {
+      source  = "hashicorp/consul"
+      version = "~>2.0"
+    }
+  }
+}
+
+##################################################################################
+# PROVIDERS
+##################################################################################
+
 provider "consul" {
-  address = "127.0.0.1:8500"
+  address    = "127.0.0.1:8500"
   datacenter = "dc1"
 }
+
+##################################################################################
+# RESOURCES
+##################################################################################
 
 resource "consul_keys" "networking" {
 
@@ -30,7 +51,7 @@ resource "consul_keys" "applications" {
 }
 
 resource "consul_acl_policy" "networking" {
-  name = "networking"
+  name  = "networking"
   rules = <<-RULE
     key_prefix "networking" {
       policy = "write"
@@ -43,7 +64,7 @@ resource "consul_acl_policy" "networking" {
 }
 
 resource "consul_acl_policy" "applications" {
-  name = "applications"
+  name  = "applications"
   rules = <<-RULE
     key_prefix "applications" {
       policy = "write"
@@ -62,15 +83,17 @@ resource "consul_acl_policy" "applications" {
 
 resource "consul_acl_token" "mary" {
   description = "token for Mary Moe"
-  policies = [consul_acl_policy.networking.name]
+  policies    = [consul_acl_policy.networking.name]
 }
 
 resource "consul_acl_token" "sally" {
   description = "token for Sally Sue"
-  policies = [consul_acl_policy.applications.name]
+  policies    = [consul_acl_policy.applications.name]
 }
 
-## OUTPUTS
+##################################################################################
+# OUTPUTS
+##################################################################################
 
 output "mary_token_accessor_id" {
   value = consul_acl_token.mary.id

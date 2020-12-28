@@ -1,11 +1,27 @@
 ##################################################################################
+# CONFIGURATION - added for Terraform 0.14
+##################################################################################
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~>3.0"
+    }
+    consul = {
+      source  = "hashicorp/consul"
+      version = "~>2.0"
+    }
+  }
+}
+
+##################################################################################
 # PROVIDERS
 ##################################################################################
 
 provider "aws" {
-  version = "~>2.0"
   profile = "deep-dive"
-  region     = var.region
+  region  = var.region
 }
 
 provider "consul" {
@@ -21,10 +37,10 @@ data "aws_availability_zones" "available" {}
 
 data "consul_keys" "networking" {
   key {
-      name = "networking"
-      path = terraform.workspace == "default" ? "networking/configuration/globo-primary/net_info" : "networking/configuration/globo-primary/${terraform.workspace}/net_info"
+    name = "networking"
+    path = terraform.workspace == "default" ? "networking/configuration/globo-primary/net_info" : "networking/configuration/globo-primary/${terraform.workspace}/net_info"
   }
-  
+
   key {
     name = "common_tags"
     path = "networking/configuration/globo-primary/common_tags"
@@ -36,13 +52,13 @@ data "consul_keys" "networking" {
 ##################################################################################
 
 locals {
-  cidr_block = jsondecode(data.consul_keys.networking.var.networking)["cidr_block"]
+  cidr_block   = jsondecode(data.consul_keys.networking.var.networking)["cidr_block"]
   subnet_count = jsondecode(data.consul_keys.networking.var.networking)["subnet_count"]
   common_tags = merge({
-        Environment = terraform.workspace
-      },
-      jsondecode(data.consul_keys.networking.var.common_tags)
-    )
+    Environment = terraform.workspace
+    },
+    jsondecode(data.consul_keys.networking.var.common_tags)
+  )
 }
 
 ##################################################################################
@@ -51,15 +67,15 @@ locals {
 
 # NETWORKING #
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
-  version = "2.44.0"
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~>2.0"
 
   name = "globo-primary-${terraform.workspace}"
 
   cidr            = local.cidr_block
-  azs = slice(data.aws_availability_zones.available.names,0,local.subnet_count)
+  azs             = slice(data.aws_availability_zones.available.names, 0, local.subnet_count)
   private_subnets = data.template_file.private_cidrsubnet.*.rendered
-  public_subnets = data.template_file.public_cidrsubnet.*.rendered
+  public_subnets  = data.template_file.public_cidrsubnet.*.rendered
 
   enable_nat_gateway = true
 

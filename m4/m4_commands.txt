@@ -13,8 +13,8 @@ terraform state pull
 ## Now it's time to deploy our local Consul server node
 ## Download the consul executable from https://www.consul.io/downloads
 
-# Go into the consul subfolder
-cd consul
+# Go into the consul subfolder in m4
+cd ../m4/consul
 
 # Create a data subdirectory
 mkdir data
@@ -23,6 +23,8 @@ mkdir data
 consul agent -bootstrap -config-file="config/consul-config.hcl" -bind="127.0.0.1"
 
 # Open a separate terminal window to run the rest of the commands
+# Make sure you are back in the m4/consul directory
+cd m4/consul
 
 # Generate the bootstrap token
 consul acl bootstrap
@@ -35,6 +37,7 @@ export CONSUL_HTTP_TOKEN=SECRETID_VALUE
 # Windows
 $env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
 
+## Now we're going to configure Consul using Terraform 
 # Set up paths, policies, and tokens
 terraform init
 terraform plan -out consul.tfplan
@@ -76,3 +79,8 @@ terraform apply nat.tfplan
 # Export the Consul token again
 # Try to run a terraform plan
 terraform plan
+
+## You can stop your Consul instance if you want now, or leave it running
+## for the next module
+
+## We are going to keep using the infrastructure in AWS for m5, so don't destroy it!

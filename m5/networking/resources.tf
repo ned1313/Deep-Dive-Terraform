@@ -1,11 +1,27 @@
 ##################################################################################
+# CONFIGURATION - added for Terraform 0.14
+##################################################################################
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~>3.0"
+    }
+    consul = {
+      source  = "hashicorp/consul"
+      version = "~>2.0"
+    }
+  }
+}
+
+##################################################################################
 # PROVIDERS
 ##################################################################################
 
 provider "aws" {
-  version = "~>2.0"
   profile = "deep-dive"
-  region     = var.region
+  region  = var.region
 }
 
 provider "consul" {
@@ -21,8 +37,8 @@ data "aws_availability_zones" "available" {}
 
 data "consul_keys" "networking" {
   key {
-      name = "networking"
-      path = "networking/configuration/globo-primary/net_info"
+    name = "networking"
+    path = "networking/configuration/globo-primary/net_info"
   }
 }
 
@@ -31,10 +47,10 @@ data "consul_keys" "networking" {
 ##################################################################################
 
 locals {
-  cidr_block = jsondecode(data.consul_keys.networking.var.networking)["cidr_block"]
+  cidr_block      = jsondecode(data.consul_keys.networking.var.networking)["cidr_block"]
   private_subnets = jsondecode(data.consul_keys.networking.var.networking)["private_subnets"]
-  public_subnets = jsondecode(data.consul_keys.networking.var.networking)["public_subnets"]
-  subnet_count = jsondecode(data.consul_keys.networking.var.networking)["subnet_count"]
+  public_subnets  = jsondecode(data.consul_keys.networking.var.networking)["public_subnets"]
+  subnet_count    = jsondecode(data.consul_keys.networking.var.networking)["subnet_count"]
 }
 
 ##################################################################################
@@ -43,24 +59,24 @@ locals {
 
 # NETWORKING #
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
-  version = "2.44.0"
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~>2.0"
 
   name = "globo-primary"
 
-  cidr = local.cidr_block
-  azs = slice(data.aws_availability_zones.available.names,0,local.subnet_count)
+  cidr            = local.cidr_block
+  azs             = slice(data.aws_availability_zones.available.names, 0, local.subnet_count)
   private_subnets = local.private_subnets
-  public_subnets = local.public_subnets
+  public_subnets  = local.public_subnets
 
-  enable_nat_gateway = false
+  enable_nat_gateway = true
 
   create_database_subnet_group = false
 
-  
+
   tags = {
     Environment = "Production"
-    Team = "Network"
+    Team        = "Network"
   }
 }
 

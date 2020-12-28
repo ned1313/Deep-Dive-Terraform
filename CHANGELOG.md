@@ -10,3 +10,4 @@ ISSUES fixed
 * Change VPC module version to support 0.14 of Terraform
 * Update the configurations to use the `terraform` and `required_providers` blocks
 * exclude `hcl` files in `.gitignore`
+* Add quota increase request
