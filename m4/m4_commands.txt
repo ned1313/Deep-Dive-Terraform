@@ -32,20 +32,20 @@ consul acl bootstrap
 # Set CONSUL_TOKEN to SecretID
 
 # Linux and MacOS
-export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+export CONSUL_HTTP_TOKEN=42d4bdfd-15ea-4d49-2637-b95b41e52abc
 
 # Windows
 $env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
 
 ## Now we're going to configure Consul using Terraform 
 # Set up paths, policies, and tokens
-terraform init
+terraform init -backend-config="path=networking/state/globo-primary"
 terraform plan -out consul.tfplan
 terraform apply consul.tfplan
 
 # Get token values for Mary and Sally and record them for later
-consul acl token read -id ACCESSOR_ID_MARY
-consul acl token read -id ACCESSOR_ID_SALLY
+consul acl token read -id b4f94e11-5393-5d93-b84d-348458d63f00
+consul acl token read -id 242658b6-ddcd-48f1-f597-b6085b3b8049
 
 # Go back to the main m4 folder
 cd ..
@@ -61,7 +61,7 @@ cd ..\m3
 # Now let's set the Consul token to Mary Moe
 # Replace SECRETID_VALUE with Mary Moe's secret ID
 # Linux and MacOS
-export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+export CONSUL_HTTP_TOKEN=92b9f7aa-5cb5-e7a0-2926-0ec7d0c74bda
 
 # Windows
 $env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
