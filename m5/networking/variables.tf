@@ -3,7 +3,7 @@
 ##################################################################################
 
 variable "region" {
-  default = "us-east-1"
+  default = "ca-central-1"
 }
 
 variable "consul_address" {
