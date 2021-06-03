@@ -6,7 +6,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~>3.0"
+      version = "3.31.0"
     }
   }
 }
@@ -33,9 +33,9 @@ data "aws_availability_zones" "available" {}
 # NETWORKING #
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~>2.0"
+  version = "2.77.0"
 
-  name = "globo-primary"
+  name = var.name
 
   cidr            = var.cidr_block
   azs             = slice(data.aws_availability_zones.available.names, 0, var.subnet_count)
@@ -50,6 +50,7 @@ module "vpc" {
   tags = {
     Environment = "Production"
     Team        = "Network"
+   // CreatedBy   = "Terraform"
   }
 }
 

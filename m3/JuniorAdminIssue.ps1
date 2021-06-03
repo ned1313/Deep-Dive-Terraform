@@ -5,7 +5,7 @@ Import-Module AWSPowerShell.NetCore
 Set-AWSCredential -ProfileName "deep-dive"
 
 #Set the default region as applicable
-$region = "us-east-1"
+$region = "ca-central-1"
 Set-DefaultAWSRegion -Region $region
 
 #Get the VPC and AZs

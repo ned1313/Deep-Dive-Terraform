@@ -3,8 +3,9 @@
 ##################################################################################
 
 variable "region" {
-  default = "us-east-1"
+  default = "ca-central-1"
 }
+
 
 variable "subnet_count" {
   default = 2
@@ -15,10 +16,11 @@ variable "cidr_block" {
 }
 
 variable "private_subnets" {
-  type = list(any)
+  type = list
 }
 
 variable "public_subnets" {
-  type = list(any)
+  type = list
 }
+variable "name" {}
 
