@@ -1,5 +1,5 @@
 ## Make sure consul is still running, if not open a separate terminal
-## Go into m4\consul and fire it back up by running 
+## Go into m4\consul and fire it back up by running
 consul agent -bootstrap -config-file="config/consul-config.hcl" -bind="127.0.0.1"
 
 ## Go back to first terminal window
@@ -13,12 +13,12 @@ export CONSUL_HTTP_TOKEN=SECRETID_VALUE
 $env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
 
 ### Try to run terraform init with a bad command switch
-terraform init -backend-confi="path=applications/state/globo-primary"
+terraform init -backend-config="path=applications/state/globo-primary"
 
 # Now let's go into the applications directory
 cd .\applications
 
-### Try to run terraform validate 
+### Try to run terraform validate
 terraform validate
 
 terraform fmt
