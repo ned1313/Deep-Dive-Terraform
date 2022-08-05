@@ -37,7 +37,7 @@ aws ec2 associate-route-table --route-table-id $priv_rt_id --subnet-id $priv_sub
 # Get the public route table
 pub_rt_id=$(aws ec2 describe-route-tables --filters Name="vpc-id",Values=$vpc_id \
   Name="tag:Name",Values="globo-primary-public" \
-  --query RouteTables[0].RouteTableId --output text)
+  --query 'RouteTables[0].RouteTableId' --output text)
 
 #Get the subnet ID for the public subnet
 pub_subnet_id=$(echo $pub_subnet | jq .Subnet.SubnetId -r)
