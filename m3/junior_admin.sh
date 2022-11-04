@@ -15,14 +15,14 @@ az=$(aws ec2 describe-availability-zones --query 'AvailabilityZones[2].ZoneId' -
 
 # Create a new public subnet in the VPC
 pub_subnet=$(aws ec2 create-subnet --availability-zone-id $az \
-  --cidr-block "10.0.2.0/24" --vpc-id $vpc_id)
+  --cidr-block "10.0.2.0/24" --vpc-id $vpc_id --output json)
 
 # Create a new private subnet in the VPC
 priv_subnet=$(aws ec2 create-subnet --availability-zone-id $az \
-  --cidr-block "10.0.12.0/24" --vpc-id $vpc_id)
+  --cidr-block "10.0.12.0/24" --vpc-id $vpc_id --output json)
 
 # Create a private route table for priv_subnet
-priv_rt=$(aws ec2 create-route-table --vpc-id $vpc_id)
+priv_rt=$(aws ec2 create-route-table --vpc-id $vpc_id --output json)
 
 priv_rt_id=$(echo $priv_rt | jq .RouteTable.RouteTableId -r)
 
