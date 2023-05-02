@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Set AWS profile to use deep-dive
 export AWS_PROFILE=deep-dive
 
