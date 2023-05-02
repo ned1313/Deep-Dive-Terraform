@@ -4,7 +4,16 @@
 export AWS_PROFILE=deep-dive
 
 # If you don't have jq installed, you're going to need it
-sudo apt install jq -y
+if (which brew &> /dev/null); then
+  brew install jq
+elif (which yum &> /dev/null); then
+  sudo yum install -y jq
+elif (which apt &> /dev/null); then
+  sudo apt install jq -y
+else
+  echo "Please install jq using your package manager of choice and retry, aborting"
+  exit 1
+fi
 
 # We're going to manually create two new subnets
 
