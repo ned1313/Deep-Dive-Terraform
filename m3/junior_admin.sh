@@ -15,6 +15,9 @@ else
   exit 1
 fi
 
+# Don't let the AWS CLI pipe its output to the default pager utility
+export AWS_PAGER=""
+
 # We're going to manually create two new subnets
 
 # First let's get the existing VPC id
