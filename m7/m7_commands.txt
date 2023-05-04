@@ -26,6 +26,9 @@ terraform fmt
 ### Fix issues and run again
 terraform validate
 
+### Switch to the development workspace ###
+terraform workspace select development 
+
 ### Now try and run terraform plan
 terraform plan -out dev.tfplan
 
