@@ -1,8 +1,22 @@
+#!/usr/bin/env bash
+
 # Set AWS profile to use deep-dive
 export AWS_PROFILE=deep-dive
 
 # If you don't have jq installed, you're going to need it
-sudo apt install jq -y
+if (which brew &> /dev/null); then
+  brew install jq
+elif (which yum &> /dev/null); then
+  sudo yum install -y jq
+elif (which apt &> /dev/null); then
+  sudo apt install jq -y
+else
+  echo "Please install jq using your package manager of choice and retry, aborting"
+  exit 1
+fi
+
+# Don't let the AWS CLI pipe its output to the default pager utility
+export AWS_PAGER=""
 
 # We're going to manually create two new subnets
 

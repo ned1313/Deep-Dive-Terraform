@@ -16,7 +16,7 @@ consul kv put networking/configuration/globo-primary/net_info @globo-primary.jso
 consul kv put networking/configuration/globo-primary/common_tags @common-tags.json
 
 ## Now go up and into the networking folder
-cd ..\networking
+cd ../networking
 
 ## We're going to initialize the Terraform config to use the Consul backend
 terraform init -backend-config="path=networking/state/globo-primary"
@@ -30,13 +30,13 @@ terraform plan -out config.tfplan
 
 ## Now we'll update our config data to use templates and default tags
 # Go into the consul folder
-cd ..\consul
+cd ../consul
 
 # Write new data
 consul kv put networking/configuration/globo-primary/net_info @globo-primary-2.json
 
 # Go into the networking2 folder
-cd ..\networking2
+cd ../networking2
 
 ## We're going to initialize the Terraform config to use the Consul backend
 terraform init -backend-config="path=networking/state/globo-primary"

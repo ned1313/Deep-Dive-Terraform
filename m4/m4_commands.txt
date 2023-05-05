@@ -5,7 +5,7 @@
 terraform state list
 
 # Now let's look at a specific resource
-terraform state show module.vpc.aws_vpc.this[0]
+terraform state show "module.vpc.aws_vpc.this[0]"
 
 # We can also view all the state data
 terraform state pull
