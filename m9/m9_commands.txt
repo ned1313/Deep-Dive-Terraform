@@ -13,8 +13,8 @@ export CONSUL_HTTP_TOKEN=SECRETID_VALUE
 # Windows
 $env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
 
-# Go into m9/networking
-cd m9/networking
+# Go into the networking directory
+cd networking
 
 # Initialize the backend
 terraform init -backend-config="path=networking/state/globo-primary"

@@ -29,7 +29,7 @@ consul kv put networking/configuration/globo-primary/qa/net_info @qa-net.json
 consul kv put networking/configuration/globo-primary/production/net_info @prod-net.json
 
 # Let's create a development workspace for networking
-cd ..\networking
+cd ../networking
 
 # Same backend for all workspaces
 terraform init -backend-config="path=networking/state/globo-primary"
@@ -61,7 +61,7 @@ $env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
 
 ## Now we can add the application data to consul
 # Go into the consul folder
-cd ..\consul
+cd ../consul
 
 # Write the configuration data for additional workspaces config
 consul kv put applications/configuration/globo-primary/development/app_info @dev-app.json
@@ -70,7 +70,7 @@ consul kv put applications/configuration/globo-primary/production/app_info @prod
 consul kv put applications/configuration/globo-primary/common_tags @app-tags.json
 
 ## Go into the applications folder
-cd ..\applications
+cd ../applications
 
 # Same backend for all workspaces
 terraform init -backend-config="path=applications/state/globo-primary"

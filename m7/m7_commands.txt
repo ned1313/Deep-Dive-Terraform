@@ -16,7 +16,7 @@ $env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
 terraform init -backend-confi="path=applications/state/globo-primary"
 
 # Now let's go into the applications directory
-cd .\applications
+cd applications
 
 ### Try to run terraform validate 
 terraform validate
@@ -63,7 +63,7 @@ terraform apply "dev.tfplan
 
 ### Demo panic and dump
 
-# Go into panic\test
+# Go into panic/test
 cd ../panic/test
 
 # Initialize terraform with -from-module
