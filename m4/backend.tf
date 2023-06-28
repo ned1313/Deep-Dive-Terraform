@@ -1,7 +1,11 @@
-## Move this backend file to m3 when migrating state
+## Move this backend file to your network config when migrating state
 terraform {
-  backend "consul" {
-    address = "127.0.0.1:8500"
-    scheme  = "http"
+  cloud {
+    # Organization ID
+    organization = "ORGANIZATION_NAME"
+    # Workspace ID
+    workspaces {
+      name = "web-network-dev"
+    }
   }
 }

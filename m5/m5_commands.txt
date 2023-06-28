@@ -1,51 +1,83 @@
-## Go into consul subfolder
-cd consul
+# Start by setting the GitHub token environment variable
+# PowerShell
+$env:GITHUB_TOKEN="TOKEN_VALUE"
 
-## We are going to add config data to our Consul installation
+# bash or zsh
+export GITHUB_TOKEN=TOKEN_VALUE
 
-# Let's set the Consul token to Mary Moe
-# Replace SECRETID_VALUE with Mary Moe's secret ID
-# Linux and MacOS
-export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+# Head into the m5/github_config directory
+cd ./m5/github_config
 
-# Windows
-$env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
+# initialize and apply the Terraform config
+terraform init
+terraform apply
 
-# Write the configuration data for globo-primary config
-consul kv put networking/configuration/globo-primary/net_info @globo-primary.json
-consul kv put networking/configuration/globo-primary/common_tags @common-tags.json
+# Head into the network_config directory
+cd ../../network_config
 
-## Now go up and into the networking folder
-cd ..\networking
+# Run git init
+git init --initial-branch=main
 
-## We're going to initialize the Terraform config to use the Consul backend
-terraform init -backend-config="path=networking/state/globo-primary"
+# Add files to git
+git add .
 
-# Verify our state is loaded
-terraform state list
+# Commit files to git
+git commit -m "Initial commit"
 
-# Now we'll run a plan using the values stored in Consul.
-# There should be NO changes required
-terraform plan -out config.tfplan
+# Add remote origin
+git remote add origin ORIGIN_URL
 
-## Now we'll update our config data to use templates and default tags
-# Go into the consul folder
-cd ..\consul
+# Track main branch
+git fetch
+git branch --set-upstream-to="origin/main" main
 
-# Write new data
-consul kv put networking/configuration/globo-primary/net_info @globo-primary-2.json
+# Push code to GitHub
+git push origin --force
 
-# Go into the networking2 folder
-cd ..\networking2
+# Create the github actions folders
+mkdir .github
+mkdir .github/workflows
 
-## We're going to initialize the Terraform config to use the Consul backend
-terraform init -backend-config="path=networking/state/globo-primary"
+# Copy the terraform.yml file to the workflows folder
+cp ../m5/terraform.yml ./.github/workflows/
 
-# Verify our state is loaded
-terraform state list
+# Rename the backend file to backend_local.tf
+mv backend.tf backend_local.tf
 
-# Now we'll run a plan using the values stored in Consul.
-# All the tags should be updated
-terraform plan -out config.tfplan
+# Add backend_local.tf to the .gitignore file
+# Add the changes to git
+git add .
 
-terraform apply config.tfplan
+# Commit the changes
+git commit -m "Add CI workflow"
+
+# Push the changes to GitHub
+git push
+
+# Fix formatting and push updates
+terraform fmt
+git add .
+git commit -m "Fix formatting"
+git push
+
+# Setting up Terraform Cloud to GitHub connection
+# Go to the m5/terraform_cloud_config directory
+cd ../m5/terraform_cloud_config
+terraform init
+
+# Replace the organization name with your org name
+# PowerShell environment variable
+terraform apply -var="gh_pat=$env:GITHUB_TOKEN" -var="organization=ORG_NAME"
+
+# Bash or zsh environment variable
+terraform apply -var="gh_pat=$GITHUB_TOKEN" -var="organization=ORG_NAME"
+
+# Create a new branch called add-third-subnet
+git checkout -b add-third-subnet
+
+# Commit code changes to branch
+git add .
+git commit -m "Add third subnet and tags"
+git push --set-upstream origin add-third-subnet
+
+# Add variable values before creating pull request

@@ -7,33 +7,43 @@ export AWS_PROFILE=deep-dive
 # Windows
 $env:AWS_PROFILE="deep-dive"
 
-# Deploy the current environment
+# Deploy the current environment using CloudFormation
+cd ./m3/cloud_formation_template
+aws cloudformation deploy --template-file="vpc_template.yaml" --stack-name dev-net --parameter-overrides EnvironmentName=globo-dev
+aws cloudformation describe-stacks --stack-name dev-net --query 'Stacks[0].Outputs[].[OutputKey, OutputValue]' --output table > table.txt
+
+# Copy the network config to the root directory
+cd ../.. # Move up to the root directory
+
+## PowerShell
+copy .\m3\network_config_example\ .\network_config -Recurse
+
+## Bash or zsh
+cp ./m3/network_config_example ./network_config
+
+# Retrieve the values to use in the import blocks
+# They are in the table.txt file in the cloud_formation_template directory
+
+# Now run a plan and see what happens
+cd ./network_config
 terraform init
-terraform validate
-terraform plan -out m3.tfplan
-terraform apply "m3.tfplan"
+terraform plan
 
-# Now Jimmy ruins things
+# Looks like we need to create another object
+terraform plan -generate-config-out="generated.tf"
 
-# Linux and MacOS: Run the junior_admin.sh script
-./junior_admin.sh
+# Update the VPC ID reference in the generated block to use the module VPC ID
+# Move the block to the resources file and delete the generated file
 
-# Windows: Install the AWS PowerShell module
-Install-Module AWSPowerShell.NetCore -Scope CurrentUser
+# Run a plan again and note the imports and adds
 
-# Windows: Run the JuniorAdminIssue.ps1 script
-.\JuniorAdminIssue.ps1
+terraform plan
 
-# Update your terraform.tfvars file to comment out the current 
-# private_subnets, public_subnets, and subnet_count values and
-# uncomment the updated values
+# There should be 9 imports and 3 adds for default objects
 
-# Run the import commands in ImportCommands.txt
+terraform apply
 
-terraform plan -out m3.tfplan
-
-# There should be 3 changes where tags are added
-
-terraform apply "m3.tfplan"
-
-terraform destroy
+# Add the environment input variable and tag
+# and update the tags on the security group
+terraform plan -out="tags.tfplan"
+terraform apply tags.tfplan
