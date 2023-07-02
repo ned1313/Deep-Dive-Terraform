@@ -18,6 +18,9 @@ cd ../../network_config
 # Run git init
 git init --initial-branch=main
 
+# Copy the example gitignore file
+cp ../m5/gitignore.example .gitignore
+
 # Add files to git
 git add .
 

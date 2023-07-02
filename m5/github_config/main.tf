@@ -3,7 +3,7 @@ resource "github_repository" "main" {
   description = "Terraform Deep Dive Repository for Globomantics Networking"
   visibility  = "public"
   auto_init   = true
-  gitignore_template = "terraform"
+  gitignore_template = "Terraform"
 }
 
 resource "github_branch" "main" {
