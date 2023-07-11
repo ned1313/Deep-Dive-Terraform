@@ -1,5 +1,5 @@
-# Set AWS profile to use deep-dive
-export AWS_PROFILE=deep-dive
+# Set AWS profile to use playground
+export AWS_PROFILE=playground
 
 # If you don't have jq installed, you're going to need it
 sudo apt install jq -y

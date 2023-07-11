@@ -1,11 +1,11 @@
 # Configure an AWS profile with proper credentials
-aws configure --profile deep-dive
+aws configure --profile playground
 
 # Linux or MacOS
-export AWS_PROFILE=deep-dive
+export AWS_PROFILE=playground
 
 # Windows
-$env:AWS_PROFILE="deep-dive"
+$env:AWS_PROFILE="playground"
 
 # Deploy the current environment
 terraform init
