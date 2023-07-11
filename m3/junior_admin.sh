@@ -1,5 +1,5 @@
 # Set AWS profile to use playground
-export AWS_PROFILE=playground
+export AWS_PROFILE=default
 
 # If you don't have jq installed, you're going to need it
 sudo apt install jq -y
@@ -14,8 +14,8 @@ vpc_id=$(aws ec2 describe-vpcs --filters Name="tag:Name",Values="globo-primary" 
 az=$(aws ec2 describe-availability-zones --query 'AvailabilityZones[2].ZoneId' --output text)
 
 # Create a new public subnet in the VPC
-pub_subnet=$(aws ec2 create-subnet --availability-zone-id $az \
-  --cidr-block "10.0.2.0/24" --vpc-id $vpc_id --output json)
+pub_subnet=$(aws ec2 create-subnet --availability-zone-id "$az" \
+  --cidr-block "10.0.2.0/24" --vpc-id "$vpc_id" --output json)
 
 # Create a new private subnet in the VPC
 priv_subnet=$(aws ec2 create-subnet --availability-zone-id $az \
