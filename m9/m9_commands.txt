@@ -1,51 +1,49 @@
-## Make sure consul is still running, if not open a separate terminal
-## Go into m4\consul and fire it back up by running 
-consul agent -bootstrap -config-file="config/consul-config.hcl" -bind="127.0.0.1"
+# Move API Key to secrets manager
+# Create secrets manager and ec2 role with Terraform
+cd m9/create_secrets_manager
+terraform init
 
-## If you don't already have the development networking environment deployed
-## let's do that know
+# Set the API key value in terraform.tfvars
+terraform apply
 
-# Let's set the Consul token to Mary Moe
-# Replace SECRETID_VALUE with Mary Moe's secret ID
-# Linux and MacOS
-export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+# Note the role name and secret_id
 
-# Windows
-$env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
+# Update code to remove the terraform_data block
+# Add variable for role name and secret ID
+# Remove variable for api key
+# Add instance profile resource
+# Update iam_instance to use profile
+# Add secret id to userdata script and templatefile function
 
-# Initialize the backend
-terraform init -backend-config="path=networking/state/globo-primary"
+# Create a new branch
+cd ../../application_config
+git checkout -b add-secrets-manager
 
-# Select the workspace
-terraform workspace select development
+# Fmt and validate
+terraform fmt
+terraform validate
 
-# Create and apply the configuration
-terraform plan -out dev.tfplan
+# Commit changes
+git add .
+git commit -m "Switch to using secrets manager"
+git push --set-upstream origin add-secrets-manager
 
-terraform apply "dev.tfplan"
+# Update variables in workspace
+# Create pull request and merge if it looks right
 
-## Now let's use Sally Sue's token for Consul
-## You can go into the ACL section of the Consul UI and grab it
+# Create a new branch for SSM parameter store
+git checkout main
+git pull
+git checkout -b add-ssm-parameters
 
-# Linux and MacOS
-export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+# Create and populate SSM parameters with hosts list and site name
+# Validate and fmt
+terraform fmt
+terraform validate
 
-# Windows
-$env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
+# Commit and push
+git add .
+git commit -m "Switch to using SSM"
+git push --set-upstream origin add-ssm-parameters
 
-## We are going to deploy the development application environment
-## If you already have it deployed, you can run destroy to remove it
-
-## Go into the applications directory
-cd ../applications
-
-# Initialize the backend
-terraform init -backend-config="path=applications/state/globo-primary"
-
-# Select the workspace
-terraform workspace select development
-
-# Create and apply the configuration
-terraform plan -out dev.tfplan
-
-terraform apply "dev.tfplan"
+# Create pull request and check changes

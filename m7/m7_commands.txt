@@ -1,78 +1,70 @@
-## Make sure consul is still running, if not open a separate terminal
-## Go into m4\consul and fire it back up by running 
-consul agent -bootstrap -config-file="config/consul-config.hcl" -bind="127.0.0.1"
+# Set AWS_PROFILE
 
-## Go back to first terminal window
-## Now let's use Sally Sue's token for Consul
-## You can go into the ACL section of the Consul UI and grab it
-
-# Linux and MacOS
-export CONSUL_HTTP_TOKEN=SECRETID_VALUE
+# Linux or MacOS
+export AWS_PROFILE=deep-dive
 
 # Windows
-$env:CONSUL_HTTP_TOKEN="SECRETID_VALUE"
+$env:AWS_PROFILE="deep-dive"
 
-### Try to run terraform init with a bad command switch
-terraform init -backend-confi="path=applications/state/globo-primary"
+## PowerShell
+copy .\m7\application_config_example\ .\application_config -Recurse
 
-# Now let's go into the applications directory
-cd .\applications
+## Bash or zsh
+cp ./m7/application_config_example ./application_config
 
-### Try to run terraform validate 
-terraform validate
-
-terraform fmt
-
-### Fix issues and run again
-terraform validate
-
-### Now try and run terraform plan
-terraform plan -out dev.tfplan
-
-### Now try and run terraform apply
-terraform apply "dev.tfplan"
-
-### Enable Info logging
-# Mac or Linux
-export TF_LOG=INFO
-
+## Create Git Repository
+# Start by setting the GitHub token environment variable
 # PowerShell
-$env:TF_LOG="INFO"
+$env:GITHUB_TOKEN="TOKEN_VALUE"
 
-### Fix issues and run again
-terraform plan -out dev.tfplan
-terraform apply "dev.tfplan"
+# bash or zsh
+export GITHUB_TOKEN=TOKEN_VALUE
 
-### Whelp looks like the instances aren't getting the message
+# Head into the m7/github_config_application directory
+cd ./m7/github_config_application
 
-### Taint asg and try to destroy
-terraform state list
-terraform taint aws_autoscaling_group.webapp_asg
-terraform taint aws_autoscaling_policy.scale_down
-terraform taint aws_autoscaling_policy.scale_up
-terraform taint aws_cloudwatch_metric_alarm.scale_down_alarm
-terraform taint aws_cloudwatch_metric_alarm.scale_up_alarm
+# initialize and apply the Terraform config
+terraform init
+terraform apply
 
-terraform plan -out dev.tfplan
-terraform apply "dev.tfplan
+# Head into the application_config directory
+cd ../../application_config
 
-### Fix error and try again
+# Run git init
+git init --initial-branch=main
 
-### Demo panic and dump
+# Copy the example gitignore file
+cp ../m5/gitignore.example .gitignore
 
-# Go into panic\test
-cd ../panic/test
+# Add files to git
+git add .
 
-# Initialize terraform with -from-module
-terraform init -from-module="../toplevel"
+# Commit files to git
+git commit -m "Initial commit"
 
-# Same backend for all workspaces
-terraform init -backend-config="path=applications/state/globo-primary"
+# Add remote origin
+git remote add origin ORIGIN_URL
 
-# Create the workspace
-terraform workspace new development
+# Track main branch
+git fetch
+git branch --set-upstream-to="origin/main" main
 
-# Create and apply the configuration
-terraform plan -out dev.tfplan
+# Push code to GitHub
+git push origin --force
 
-terraform apply "dev.tfplan"
+# Make sure checks complete
+# Add new workspace to Terraform Cloud linked to Repository
+# Add the necessary variable inputs with only two subnets for now
+
+# Create a new branch called tfe-outputs
+git checkout -b tfe-outputs
+
+# Make code changes
+# Commit code changes to branch
+git add .
+git commit -m "Switch to using tfe_outputs"
+git push --set-upstream origin tfe-outputs
+
+# Update network workspace state sharing
+# Add new variable values to application workspace
+# Create pull request and merge once there are no changes

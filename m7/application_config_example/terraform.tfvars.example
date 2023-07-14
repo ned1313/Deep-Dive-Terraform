@@ -1,0 +1,6 @@
+prefix = "globo-dev"
+environment = "testing"
+billing_code = "8652147555"
+public_subnets = [ "SUBNET_1","SUBNET_2" ]
+vpc_id = "VPC_ID"
+api_key = "Tac0$AreDel!c1ous"

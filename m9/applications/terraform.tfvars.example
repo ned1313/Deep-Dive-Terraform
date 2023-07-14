@@ -1,1 +1,0 @@
-playbook_repository = "https://github.com/ned1313/ansible-playbook-wordpress-nginx.git"
