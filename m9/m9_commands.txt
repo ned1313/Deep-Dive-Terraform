@@ -8,20 +8,18 @@ terraform apply
 
 # Note the role name and secret_id
 
+# Create a new branch
+cd ../../application_config
+git checkout main
+git pull
+git checkout -b add-secrets-manager
+
 # Update code to remove the terraform_data block
 # Add variable for role name and secret ID
 # Remove variable for api key
 # Add instance profile resource
 # Update iam_instance to use profile
 # Add secret id to userdata script and templatefile function
-
-# Create a new branch
-cd ../../application_config
-git checkout -b add-secrets-manager
-
-# Fmt and validate
-terraform fmt
-terraform validate
 
 # Commit changes
 git add .
@@ -30,20 +28,3 @@ git push --set-upstream origin add-secrets-manager
 
 # Update variables in workspace
 # Create pull request and merge if it looks right
-
-# Create a new branch for SSM parameter store
-git checkout main
-git pull
-git checkout -b add-ssm-parameters
-
-# Create and populate SSM parameters with hosts list and site name
-# Validate and fmt
-terraform fmt
-terraform validate
-
-# Commit and push
-git add .
-git commit -m "Switch to using SSM"
-git push --set-upstream origin add-ssm-parameters
-
-# Create pull request and check changes

@@ -54,7 +54,25 @@ git push origin --force
 
 # Make sure checks complete
 # Add new workspace to Terraform Cloud linked to Repository
-# Add the necessary variable inputs with only two subnets for now
+# Add the necessary variable inputs using the portal or commands below
+aws ec2 describe-vpcs --region=us-east-1 --filters "Name=tag:Name, Values=globo-dev" --query Vpcs[].VpcId --output text
+aws ec2 describe-subnets --region=us-east-1 --filters "Name=vpc-id,Values=VPC_ID" --query Subnets[].SubnetId
+
+# Switch to networing config
+cd ../network_config
+
+# Create a new branch called tfe-outputs
+# Make code changes
+# Commit code changes to branch
+git add .
+git commit -m "Switch to using tfe_outputs"
+git push --set-upstream origin tfe-outputs
+
+# Go through the code deployment process
+# Update network workspace state sharing
+
+# Go to application config directory
+cd ../application_config
 
 # Create a new branch called tfe-outputs
 git checkout -b tfe-outputs
@@ -65,6 +83,7 @@ git add .
 git commit -m "Switch to using tfe_outputs"
 git push --set-upstream origin tfe-outputs
 
-# Update network workspace state sharing
 # Add new variable values to application workspace
 # Create pull request and merge once there are no changes
+
+# Merge the changes back to the main branch in GitHub too

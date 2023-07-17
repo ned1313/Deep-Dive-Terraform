@@ -1,10 +1,15 @@
 # Start a new branch for ansible changes
+git checkout main
+git pull
 git checkout -b ansible-change
 
 # Don't forget to fmt and validate changes!
 
+# Copy the userdata update over
+cp ../m8/ansible_updates/userdata.sh ./templates/userdata.sh
+
 # Make code changes to use ansible instead of provisioners
-# Repository url is https://github.com/ned1313/ansible-playbook-nginx
+# Repository url is https://github.com/ned1313/ansible-playbook-nginx.git
 # Commit changes and push to origin
 git add .
 git commit -m "Switch to using Ansible for nginx install"
@@ -15,6 +20,8 @@ git push --set-upstream origin ansible-change
 
 # Updating the null_resource
 # Create a new branch called terraform-data
+git checkout main
+git pull
 git checkout -b terraform-data
 
 # Switch out the null_resource for terraform_data
@@ -23,4 +30,5 @@ git add .
 git commit -m "Switch to using terraform_data"
 git push --set-upstream origin terraform-data
 
-# Create pull request and merge changes
+# Create pull request and merge changes to development
+# Merge changes to main also
