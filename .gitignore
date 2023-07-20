@@ -19,3 +19,5 @@
 
 # .hcl files
 *.hcl
+
+ImportCommandsValues.txt
