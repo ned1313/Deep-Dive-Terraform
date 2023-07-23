@@ -1,3 +1,11 @@
+# Set AWS_PROFILE
+
+# Linux or MacOS
+export AWS_PROFILE=deep-dive
+
+# Windows
+$env:AWS_PROFILE="deep-dive"
+
 # Move API Key to secrets manager
 # Create secrets manager and ec2 role with Terraform
 cd m9/create_secrets_manager

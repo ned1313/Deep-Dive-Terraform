@@ -56,12 +56,20 @@ git push origin --force
 # Add new workspace to Terraform Cloud linked to Repository
 # Add the necessary variable inputs using the portal or commands below
 aws ec2 describe-vpcs --region=us-east-1 --filters "Name=tag:Name, Values=globo-dev" --query Vpcs[].VpcId --output text
-aws ec2 describe-subnets --region=us-east-1 --filters "Name=vpc-id,Values=VPC_ID" --query Subnets[].SubnetId
+aws ec2 describe-subnets --region=us-east-1 --filters "Name=vpc-id,Values=vpc-0fa3eb2daaeae0e29" --query Subnets[].SubnetId
 
-# Switch to networing config
+# Check config of first EC2 instance
+ssh -i PATH_TO_PEM_FILE ec2-user@PUBLIC_IP_ADDRESS
+
+# Switch to networking config
 cd ../network_config
 
 # Create a new branch called tfe-outputs
+git checkout main
+git pull
+
+git checkout -b tfe-outputs
+
 # Make code changes
 # Commit code changes to branch
 git add .
