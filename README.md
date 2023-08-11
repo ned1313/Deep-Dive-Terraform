@@ -1,8 +1,8 @@
 # Deep-Dive-Terraform
 
-Welcome to Terraform - Deep Dive version 2.  These exercise files are meant to accompany my course on [Pluralsight](https://app.pluralsight.com/library/courses/terraform-deep-dive/).  The course was developed using version 0.12.x of Terraform.  As far as I know there are no coming changes in 0.13 or newer that will significantly impact the validity of these exercise files.  But I also don't control all the plug-ins, providers, and modules used by the configurations. 
+Welcome to Terraform - Deep Dive version 3.  These exercise files are meant to accompany my course on [Pluralsight](https://app.pluralsight.com/library/courses/terraform-deep-dive-2023).  The course was developed using version 1.5.x of Terraform.
 
-If you're looking for the older version of the course, that is still available on the v1 branch. I am no longer maintaining it, but I thought I would keep it around for posterity.
+If you're looking for the older versions of the course, that is still available on the v1 and v2 branches. I am no longer maintaining them, but I thought I would keep them around for posterity or if you're already working through those versions of the course.
 
 ## AWS Account
 
@@ -12,9 +12,9 @@ You may exceed your EIP address quota when deploying multiple enviornments. You 
 
 ## Using the files
 
-Each folder represents a module from the course and they often build upon each other. Especially, the directory m4 that has the setup for Consul and stores it's data. In each module and subfolder there may be an example of the *tfvars* file that you use named *terraform.tfvars.example*.  Simply update the contents of the file and rename it *terraform.tfvars*.
+Each folder represents a module from the course and they all build off of each other. You will be creating two working directories in your local copy of the exercise files: `network_config` and `application_config`. Both of these folders are part of the `.gitignore` so they will not be committed back to the repository.
 
-Once you have updated and renamed the *tfvars* file(s), you can run the commands in the *name_commands.txt* file, where the *name* is the name of the module or folder. Be sure to follow the commands in order, and be cognizant of what directory is being used for each command.  Or you can just noodle around on the terraform CLI and see what you can discover/break.  If you run into an issue, please submit it as such and I will do my best to remediate it.
+In the module folders, I have included Terraform configurations to help set up the necessary prerequisites. I've also included the commands you should run if you're following along. You don't have to run them verbatim, and I encourage you to mess around and try out different flags and commands.  If you run into an issue, please submit it as such and I will do my best to remediate it.
 
 ## Line Endings
 
@@ -22,23 +22,19 @@ An issue I have discovered from time to time is that Terraform doesn't much like
 
 ## MONEY!!!
 
-A gentle reminder about cost.  The course will have you creating resources in AWS.  Some of the resources are not going to be 100% free.  In most cases I have tried to use the [Free-tier](https://aws.amazon.com/free/) when possible, but in some cases I have elected to use a larger size EC2 instance to demonstrate the possibilities with multiple environments. Additionally, the NAT gateways created by the networking configurations in later modules are not free! They can run about $40 a piece for the month.
+A gentle reminder about cost.  The course will have you creating resources in AWS.  Some of the resources are not going to be 100% free.  In most cases I have tried to use the [Free-tier](https://aws.amazon.com/free/) when possible, but AWS is about to start charging for IPv4 addresses even when they're attached to a resource. I'm not sure how this will impact the free tier, so just be cognizant of what you're creating.
 
-When you complete an exercise in the course, be sure to tear down the infrastructure. Just run `terraform destroy` and approve the destruction to remove all resources from AWS. You should remove infrastructure in the reverse order that it was deployed. Destroy folder `applications` then `networking`. You get the idea.
+When you complete an exercise in the course, you can always run `terraform destroy` and approve the destruction to remove all resources from AWS. Once you get to the application deployment, you will need to leave the networking in place for a successful application deployment. If you wish to tear things down, destroy the application first and then the network.
 
-### Module 7
+## Terraform Cloud and GitHub Actions
 
-The contents of module 7 are all about troubleshooting Terraform. As a consequence, if you try and run the files as they are you will see lots of fun errors. That's the point! In the process of creating trouble, I discovered a bug with how the AWS `aws_iam_instance_profile` is created/destroyed. That bug might be fixed by the time you try the course, so you might not see the same behavior. The final example of making Terraform panic may also be fixed in newer versions of Terraform. For reference, here's the [issue](https://github.com/hashicorp/terraform/issues/25707) I found to create the crash. If it has been fixed and you still want to see Terraform *PANIC*, you can search the GitHub issues for a different example or use an older version of Terraform that doesn't have the fix.
-
-### Module 8
-
-A special note about module 8. The process has you deploy resources using Jenkins. In order to destroy the infrastructure, kick off a build and select *Cancel* during the approval stage. Cancelling the process will trigger a destruction of the environment. Don't use this process in real life, you'll end up with some very unhappy Ops folks.
+Previous versions of this course used Docker, Consul, and Jenkins to provide remote state and CI/CD operations. This ended up being a sticking point for several people, and they ended up abandoning the course. To simplify things, I have replaced those technologies with Terraform Cloud and GitHub Actions. This is not an overt endorsement of either technology, there are plenty of other great options when it comes to remote state storage and CI/CD for IaC. I chose GitHub Actions because we are already using GitHub any way, and I chose Terraform Cloud because it has a solid free tier and it is part of the Terraform Associate certification. Speaking of which...
 
 ## Certification
 
-HashiCorp has released the *Terraform Certified Associate* certification.  You might be wondering if this course fully prepares you for the cert.  **It does not.**  Taking this course along with the [Terraform - Getting Started](https://app.pluralsight.com/library/courses/getting-started-terraform) course on Pluralsight will meet most of the learning objectives for the certification, but there is no substitute for running the software on your own and hacking away.
+HashiCorp has released the *Terraform Certified Associate* certification.  You might be wondering if this course fully prepares you for the cert.  **It does not.**  Taking this course along with the [Terraform - Getting Started](https://app.pluralsight.com/library/courses/terraform-getting-started-2023) course on Pluralsight will meet all of the learning objectives for the certification, but there is no substitute for running the software on your own and hacking away.
 
-I have coauthored a certification guide which you can find on [Leanpub](https://leanpub.com/terraform-certified/).  This is an unofficial guide, but I believe in concert with the Pluralsight courses you will be in a good position to sit the exam.
+I have coauthored a certification guide with Adin Ermie which you can find on [Leanpub](https://leanpub.com/terraform-certified/).  This is an unofficial guide, but I believe in concert with the Pluralsight courses you will be in a good position to sit the exam.
 
 ## Conclusion
 

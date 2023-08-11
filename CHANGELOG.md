@@ -1,3 +1,9 @@
+**2023-08-11**
+
+FULL COURSE UPDATE - v3
+
+This is a full update of the course. The default branch for the repository is now `main`. The `v2` branch will be kept for historical purposes. V3 is a complete overhaul of V2, so the code is not compatible with V2 of the Deep Dive course.
+
 **2020-12-21**
 
 ISSUES fixed
