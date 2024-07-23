@@ -19,7 +19,7 @@ cd ../.. # Move up to the root directory
 copy .\m3\network_config_example\ .\network_config -Recurse
 
 ## Bash or zsh
-cp ./m3/network_config_example ./network_config
+cp -r ./m3/network_config_example ./network_config
 
 # Retrieve the values to use in the import blocks
 # They are in the table.txt file in the cloud_formation_template directory
