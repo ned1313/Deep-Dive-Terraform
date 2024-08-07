@@ -10,7 +10,7 @@ $env:AWS_PROFILE="deep-dive"
 copy .\m7\application_config_example\ .\application_config -Recurse
 
 ## Bash or zsh
-cp ./m7/application_config_example ./application_config
+cp -r ./m7/application_config_example ./application_config
 
 ## Create Git Repository
 # Start by setting the GitHub token environment variable
